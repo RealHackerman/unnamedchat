@@ -1,0 +1,216 @@
+<!doctype html>
+<html>
+
+<head>
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+	<title>Register | Unnamed Chat</title>
+	<style>
+		body {
+			font-size: 18px;
+			background: linear-gradient(135deg, #3c3c3c, #fda50f);
+      color: white;
+		}
+
+		body,
+		input,
+		button {
+			font-family: Roboto, sans-serif;
+		}
+
+		body,
+		html {
+			margin: 0px;
+			height: 100%;
+		}
+
+		#login input {
+			outline: 0px;
+			border-radius: 5px;
+			width: calc(100% - 30px);
+			text-align: center;
+			padding: 15px 10px;
+			background-color: #2f2f2f;
+			color: white;
+			margin: 5px;
+			border: 2px solid #232323;
+			font-size: 18px;
+		}
+
+		#login {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 60%;
+			min-width: 300px;
+			max-width: 500px;
+			padding: 30px;
+			transform: translate(-50%, -50%);
+			background-color: #3c3c3c;
+			border-radius: 5px;
+			box-shadow: 0 0 3px black;
+		}
+
+		#login input:focus {
+			border: 2px solid #fda50f;
+		}
+
+		.label {
+			color: grey;
+			text-align: left;
+			width: 100%;
+			margin-left: 10px;
+			font-size: 14px;
+      font-weight: bold;
+		}
+
+		.heading {
+			color: white;
+			font-size: 25px;
+			text-align: center;
+			margin-bottom: 5px;
+			font-family: "Roboto", sans-serif;
+			font-weight: 700;
+		}
+
+		.smallHeading {
+			color: grey;
+			font-size: 18px;
+			text-align: center;
+			margin-bottom: 30px;
+		}
+
+		.button {
+			color: white;
+			background-color: #fda50f;
+			border-radius: 5px;
+			padding: 10px;
+			cursor: pointer;
+			margin-top: 20px;
+			display: inline-block;
+		}
+
+		.wrap {
+			text-align: center;
+		}
+
+		#main {
+			display: none;
+		}
+
+    a {
+      text-decoration: none !important;
+      color: #fda50f !important;
+    }
+
+    .noAcc {
+      font-size: 15px;
+      margin-left: 5px;
+      margin-top: 5px;
+    }
+	</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="Description" content="Unnamed Chat, the superior chat website" />
+	<script src="/socket.io/socket.io.js">
+	</script>
+  <link rel="icon" href="/assets/logo.png" type="image/x-icon"/>
+</head>
+
+<body>
+	<section id="login">
+		<div class="heading">Welcome</div>
+		<div class="smallHeading">Login or create an account to continue</div>
+    <span class="label" id="eLabel">EMAIL</span>
+    <input id="email" type="email"/>
+		<span class="label" id="nLabel">USERNAME</span>
+    <input id="name"/>
+    <span class="label" id="pLabel">PASSWORD</span>
+    <input type="password" id="pass" />
+    <span class="noAcc">Already have an account? <a href="/">Login</a></span>
+    <div class="wrap">
+    <span class="button" id="loginBtn">Register</span>
+    </div>
+  </section>
+  <script>
+  if (location.protocol !== "https:") {
+      location.protocol = "https:";
+    }
+  var socket = io();
+  const emailRegex = RegExp("^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$");
+  function getCookie(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length == 2) return parts.pop().split(";").shift();
+  }
+  var urlParams;
+  (window.onpopstate = function () {
+      var match,
+          pl     = /\+/g,  // Regex for replacing addition symbol with a space
+          search = /([^&=]+)=?([^&]*)/g,
+          decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+          query  = window.location.search.substring(1);
+
+      urlParams = {};
+      while (match = search.exec(query))
+        urlParams[decode(match[1])] = decode(match[2]);
+  })();
+  if (!getCookie("name") || !getCookie("pass")) {
+    document.getElementById("loginBtn").onclick = function() {
+      let name = document.getElementById("name").value;
+      let pass = document.getElementById("pass").value;
+      let email = document.getElementById("email").value.toLowerCase();
+      if (name.length > 20) {
+        registerError("name", "Your username must be less than 20 characters");
+      } else if (name === undefined || name.length < 1) {
+        registerError("name", "Your username is required");
+      } else if (pass.length >= 30) {
+        registerError("pass", "Your password must be less than 30 characters");
+      } else if (pass.length < 6) {
+        registerError("pass", "Your password must be at least 6 characters");
+      } else if (!/^[a-z0-9_-\s]+$/i.test(name)) {
+        registerError("name", "Your name must not contain special characters");
+      } else if (!emailRegex.test(email)) {
+        registerError("email", "Your email is invalid");
+      } else {
+        socket.emit("register", name, pass, email, socket.id);
+      }
+    };
+    function registerError(type, msg) {
+      document.getElementById("nLabel").style.color = "grey";
+      document.getElementById("pLabel").style.color = "grey";
+      document.getElementById("eLabel").style.color = "grey";
+      document.getElementById("name").style.borderColor = "#232323";
+      document.getElementById("pass").style.borderColor = "#232323";
+      document.getElementById("email").style.borderColor = "#232323";
+      if (type === "name") {
+        document.getElementById("nLabel").innerHTML = "USERNAME - <i>" + msg + "</i>"
+        document.getElementById("nLabel").style.color = "red";
+        document.getElementById("name").style.borderColor = "red";
+      } else if (type === "pass") {
+        document.getElementById("pLabel").innerHTML = "PASSWORD - <i>" + msg + "</i>"
+        document.getElementById("pLabel").style.color = "red";
+        document.getElementById("pass").style.borderColor = "red";
+      } else if (type === "email") {
+        document.getElementById("eLabel").innerHTML = "EMAIL - <i>" + msg + "</i>"
+        document.getElementById("eLabel").style.color = "red";
+        document.getElementById("email").style.borderColor = "red";
+      }
+    };
+    socket.on("registerSuccess", function() {
+      document.cookie = "name=" + document.getElementById("name").value + "; expires=" + new Date(new Date().getTime()+2592000000) + "; secure";
+      document.cookie = "pass=" + document.getElementById("pass").value + "; expires=" + new Date(new Date().getTime()+2592000000) + "; secure";
+      if (urlParams.redirectTo) {
+        window.location.href = "/" + urlParams.redirectTo;
+      } else {
+        window.location.href = "/app";
+      }
+    });
+    socket.on("registerError", function(type) {
+      if (type === "name") registerError("name", "This username is already in use");
+      if (type === "email") registerError("email", "This email is already in use, if you beleive this is a mistake, please <a href=mailto:unnamedchat@gmail.com?subject=Support%20-%20Email%20Address%20Taken>contact support</a>");
+    });
+  } else {
+    window.location.href = "./app";
+  }
+  </script>
+  </body>
+</html>

@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+
+<head>
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+	<title>Login | Unnamed Chat</title>
+	<style>
+		body {
+			font-size: 18px;
+			background: linear-gradient(135deg, #3c3c3c, #fda50f);
+      color: white;
+		}
+
+		body,
+		input,
+		button {
+			font-family: Roboto, sans-serif;
+		}
+
+		body,
+		html {
+			margin: 0px;
+			height: 100%;
+		}
+
+		#login input {
+			outline: 0px;
+			border-radius: 5px;
+			width: calc(100% - 30px);
+			text-align: center;
+			padding: 15px 10px;
+			background-color: #2f2f2f;
+			color: white;
+			margin: 5px;
+			border: 2px solid #232323;
+			font-size: 18px;
+		}
+
+		#login {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 60%;
+			min-width: 300px;
+			max-width: 500px;
+			padding: 30px;
+			transform: translate(-50%, -50%);
+			background-color: #3c3c3c;
+			border-radius: 5px;
+			box-shadow: 0 0 3px black;
+		}
+
+		#login input:focus {
+			border: 2px solid #fda50f;
+		}
+
+		.label {
+			color: grey;
+			text-align: left;
+			width: 100%;
+			margin-left: 10px;
+			font-size: 14px;
+      font-weight: bold;
+		}
+
+		.heading {
+			color: white;
+			font-size: 25px;
+			text-align: center;
+			margin-bottom: 5px;
+			font-family: "Roboto", sans-serif;
+			font-weight: 700;
+		}
+
+		.smallHeading {
+			color: grey;
+			font-size: 18px;
+			text-align: center;
+			margin-bottom: 30px;
+		}
+
+		.button {
+			color: white;
+			background-color: #fda50f;
+			border-radius: 5px;
+			padding: 10px;
+			cursor: pointer;
+			margin-top: 20px;
+			display: inline-block;
+		}
+
+		.wrap {
+			text-align: center;
+		}
+
+    a {
+      text-decoration: none !important;
+      color: #fda50f !important;
+    }
+
+    .noAcc {
+      font-size: 15px;
+      margin-left: 5px;
+      margin-top: 5px;
+    }
+	</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="Description" content="Unnamed Chat, the superior chat website" />
+	<script src="/socket.io/socket.io.js">
+	</script>
+  <link rel="icon" href="/assets/logo.png" type="image/x-icon"/>
+</head>
+
+<body>
+	<section id="login">
+		<div class="heading">Welcome</div>
+		<div class="smallHeading">Login or create an account to continue</div>
+		<span class="label" id="nLabel">USERNAME</span>
+    <input id="name"/>
+    <span class="label" id="pLabel">PASSWORD</span>
+    <input type="password" id="pass" />
+    <div class="noAcc">Don't have an account? <a href="/register">Register</a></div>
+    <div class="noAcc">Forgotten your password? <a href="/passwordreset">Reset</a></div>
+    <div class="wrap">
+    <span class="button" id="loginBtn">Login</span>
+    </div>
+  </section>
+  <script>
+  if (location.protocol !== "https:") {
+    location.protocol = "https:";
+  }
+  var socket = io();
+  function getCookie(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length == 2) return parts.pop().split(";").shift();
+  }
+  var urlParams;
+  (window.onpopstate = function () {
+      var match,
+          pl     = /\+/g,  // Regex for replacing addition symbol with a space
+          search = /([^&=]+)=?([^&]*)/g,
+          decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+          query  = window.location.search.substring(1);
+
+      urlParams = {};
+      while (match = search.exec(query))
+        urlParams[decode(match[1])] = decode(match[2]);
+  })();
+  if (!getCookie("name") || !getCookie("pass")) {
+    document.getElementById("loginBtn").onclick = function() {
+      socket.emit("login", document.getElementById("name").value, document.getElementById("pass").value, socket.id);
+    };
+    socket.on("loginError", function() {
+      document.getElementById("pLabel").innerHTML = "PASSWORD - <i>Your credentials are incorrect</i>"
+      document.getElementById("pLabel").style.color = "red";
+      document.getElementById("pass").style.borderColor = "red";
+    });
+    socket.on('loginSuccess', function() {
+      document.cookie = "name=" + document.getElementById("name").value + "; expires=" + new Date(new Date().getTime()+2592000000) + "; secure";
+      document.cookie = "pass=" + document.getElementById("pass").value + "; expires=" + new Date(new Date().getTime()+2592000000) + "; secure";
+      if (urlParams.redirectTo) {
+        window.location.href = "/" + urlParams.redirectTo;
+      } else {
+        window.location.href = "/app";
+      }
+    });
+  } else {
+    window.location.href = "./app";
+  }
+  </script>
+  </body>
+</html>

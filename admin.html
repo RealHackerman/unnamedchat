@@ -1,0 +1,531 @@
+<!doctype html>
+<html>
+
+<head>
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+	<title>Admin | Unnamed Chat</title>
+	<style>
+		body {
+			font-size: 18px;
+			background-color: #3c3c3c;
+			color: white;
+		}
+
+		body,
+		input,
+		button {
+			font-family: Roboto, sans-serif;
+		}
+
+		body,
+		html {
+			margin: 0px;
+			height: 100%;
+		}
+
+		input[type=number] {
+			width: 60px;
+		}
+
+		input {
+			text-align: center;
+			font-size: 18px;
+			outline: 0px;
+			border-radius: 5px;
+			background-color: #2f2f2f;
+			color: white;
+			border: 2px solid #232323;
+			padding: 5px;
+		}
+
+		input:focus {
+			border: 2px solid #fda50f;
+		}
+
+		.button {
+			color: white;
+			background-color: #fda50f;
+			border-radius: 5px;
+			padding: 7px;
+			cursor: pointer;
+			margin-top: 20px;
+			display: inline-block;
+		}
+
+		/* remove arrows */
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+
+		#mute {
+			top: 50%;
+			transform: translateY(-50%);
+			text-align: center;
+		}
+
+		.sidebar {
+			position: absolute;
+			left: 0px;
+			top: 0px;
+			width: 300px;
+			height: 100%;
+			background-color: #232323;
+		}
+
+		#muteLabel {
+			display: block;
+			height: 21px;
+			text-align: center;
+			font-size: 18px;
+		}
+
+		.tabLabel {
+			background-color: #2f2f2f;
+			border-radius: 10px;
+			margin: 10px;
+			padding: 3px;
+			text-align: center;
+			cursor: pointer;
+			border: 2px solid #2f2f2f;
+		}
+
+		.tab {
+			position: absolute;
+			display: none;
+			left: 300px;
+			right: 0px;
+		}
+
+		#ranksList {
+			height: calc(100% - 40px);
+			width: 200px;
+		}
+
+		.label {
+			color: grey;
+			font-size: 14px;
+			width: 200px;
+			display: inline-block;
+			font-weight: bold;
+      margin-left: 13px;
+      margin-top: 10px;
+		}
+
+		#ranksLabel {
+			position: relative;
+			cursor: pointer;
+		}
+
+		#ranksLabel>span {
+			position: absolute;
+			right: 25px;
+			top: -3px;
+			font-size: 18px;
+		}
+
+		#ranksLabel:hover {
+			color: #888888;
+		}
+
+		.rank {
+			border-radius: 10px;
+			background-color: #2f2f2f;
+			border: 2px solid #2f2f2f;
+			margin: 10px;
+			padding: 3px;
+			text-align: center;
+			cursor: pointer;
+			height: 21px;
+			overflow: hidden;
+		}
+
+		#rankSettings {
+			height: 100%;
+			display: inline-block;
+			position: absolute;
+			top: 0px;
+			right: 30%;
+			left: 250px;
+		}
+
+		#ranks {
+			height: 100%;
+		}
+
+		#rankSettings>input {
+      margin-top: 10px;
+			width: calc(100% - 13px) !important;
+			text-align: left;
+      width: 100%;
+		}
+
+		#rankSettings>.label {
+			margin-left: 0px;
+      width: 100%;
+		}
+
+		/* switch */
+		.switch {
+			position: relative;
+			display: inline-block;
+			width: 50px;
+			height: 24px;
+		}
+
+		.switch input {
+			opacity: 0;
+			width: 0;
+			height: 0;
+		}
+
+		.slider {
+			position: absolute;
+			cursor: pointer;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: #ccc;
+			transition: .4s;
+			border-radius: 34px;
+		}
+
+		.slider:before {
+			position: absolute;
+			content: "";
+			height: 16px;
+			width: 16px;
+			left: 4px;
+			bottom: 4px;
+			background-color: white;
+			transition: .4s;
+			border-radius: 50%;
+		}
+
+		input:checked+.slider {
+			background-color: #fda50f;
+		}
+
+		input:checked+.slider:before {
+			transform: translateX(26px);
+		}
+
+		.labelWrap {
+			position: absolute;
+			right: 0px;
+			top: 0px;
+		}
+
+		.smallLabel {
+      margin-top: 10px;
+			position: relative;
+			width: 100%;
+			display: inline-block;
+		}
+
+		#saveButton {
+			position: absolute;
+			bottom: 10px;
+			right: 10px;
+		}
+
+		#members {
+			right: 30%;
+		}
+
+		#userList>div {
+			width: 100%;
+			border-radius: 10px;
+			background-color: #2f2f2f;
+			border: 2px solid #2f2f2f;
+			margin: 10px;
+			padding: 3px;
+			text-align: left;
+			height: 21px;
+			overflow: hidden;
+			position: relative;
+		}
+
+		#userList>div>span {
+			position: absolute;
+			left: 300px;
+			display: inline-block;
+			color: grey;
+			font-weight: bold;
+			cursor: pointer;
+		}
+
+		#promoteMenu {
+			width: 250px;
+			height: 340px;
+			display: none;
+			background-color: #232323;
+			border-radius: 10px;
+			position: absolute;
+			left: 185px;
+			z-index: 30;
+		}
+
+		#bodyClick {
+			z-index: 29;
+			width: 100%;
+			height: 100%;
+			position: absolute;
+			left: 0px;
+			top: 0px;
+			pointer-events: none;
+		}
+
+		.rankTags {
+			left: 310px;
+			position: absolute;
+			display: inline-block;
+			top: 2px;
+      overflow: auto;
+      height: 24px;
+		}
+
+		.rankTag {
+      display: inline-block;
+			margin-left: 10px;
+			background-color: #232323;
+			border-radius: 5px;
+			padding: 3px 5px;
+			font-size: 80%;
+		}
+
+		.x {
+			display: inline-block;
+			cursor: pointer;
+			font-weight: bold;
+			color: grey;
+			margin-left: 10px;
+		}
+
+    .sideTitle {
+      margin: 10px;
+      font-weight: bold;
+      font-size: 20px;
+    }
+	</style>
+	<script src="/socket.io/socket.io.js">
+	</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="Description" content="Unnamed Chat, the superior chat website" />
+  <link rel="icon" href="/assets/logo.png" type="image/x-icon"/>
+</head>
+
+<body>
+	<div id="bodyClick" onclick="this.style.pointerEvents='none'; document.getElementById('promoteMenu').style.display = 'none'"></div>
+	<div class="sidebar">
+		<div class="sideTitle">Admin Panel</div>
+		<div class="tabLabel" onclick="showTab(0)">Ranks</div>
+		<div class="tabLabel" onclick="showTab(1)">Mute</div>
+		<div class="tabLabel" onclick="showTab(2)">Members</div>
+	</div>
+	<!--permissions-->
+	<section id="ranks" class="tab">
+		<div id="saveButton" class="button" onclick="saveRankChanges()">Save</div>
+		<div class="label" id="ranksLabel">RANKS
+			<span>+</span>
+    </div>
+    <div id="ranksList">
+    </div>
+    
+    <div id="rankSettings">
+
+      <div class="label">DISPLAY</div>
+      <input id="rankName"/>
+
+      <span class="smallLabel">Colour
+        <div class="labelWrap">
+          <input type="color" id="rankColor"/>
+        </div>
+      </span>
+
+      <div class="label">GENERAL</div>
+      <span class="smallLabel">Can Edit Ranks
+      <div class="labelWrap">
+        <label class="switch">
+          <input type="checkbox" id="rankCanEditRanks">
+          <span class="slider"></span>
+        </label>
+      </div>
+      </span>
+
+      <div class="label">MODERATION</div>
+      <span class="smallLabel">Can Mute
+      <div class="labelWrap">
+        <label class="switch">
+          <input type="checkbox" id="rankCanMute">
+          <span class="slider"></span>
+        </label>
+      </div>
+      </span>
+
+    </div>
+  </section>
+  <!--mute-->
+  <section id="mute" class="tab">
+    <span id="muteLabel"></span>
+    <input id="user" placeholder="user">
+    <input id="reason" placeholder="reason">
+    <input type="number" id="years" placeholder="y">
+    <input type="number" id="days" placeholder="d">
+    <input type="number" id="hours" placeholder="h">
+    <input type="number" id="minutes" placeholder="m">
+    <div class="button" onclick="mute()">Mute</div>
+  </section>
+  <section id="members" class="tab">
+    <span class='label'>USER LIST</span>
+    <div id="userList">
+    </div>
+    <div id="promoteMenu">
+
+    </div>
+  </section>
+  <script>
+    if (location.protocol !== "https:") {
+      location.protocol = "https:";
+    }
+    var socket = io();
+    var i;
+    var shownRank;
+    var rankData;
+    var shownTab;
+    var userList;
+    var promoting;
+    var userRanks;
+    document.getElementById("rankName").oninput = function() {
+      document.getElementsByClassName("rank")[shownRank[0]].innerText = this.value;
+    }
+    function getCookie(name) {
+      var value = "; " + document.cookie;
+      var parts = value.split("; " + name + "=");
+      if (parts.length == 2) return parts.pop().split(";").shift();
+    }
+    function saveRankChanges() {
+      rankData = {};
+      rankData.name = document.getElementById("rankName").value;
+      rankData.canMute = document.getElementById("rankCanMute").checked;
+      rankData.canEditRanks = document.getElementById("rankCanEditRanks").checked;
+      rankData.color = document.getElementById("rankColor").value;
+      socket.emit("editRank", getCookie("name"), getCookie("pass"), socket.id, shownRank[1], rankData)
+    }
+    function clearCookie(name) {
+      document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+    }
+    socket.on("connect", function() {
+      showTab(0);
+      document.getElementById("ranksLabel").onclick = function() {
+        socket.emit("createRank", getCookie("name"), getCookie("pass"), socket.id);
+      }
+    });
+    function showTab(tab) {
+      for (i=0; i<document.getElementsByClassName("tab").length; i++) {
+        document.getElementsByClassName("tab")[i].style.display = "none";
+        document.getElementsByClassName("tabLabel")[i].style.border = "2px solid #2f2f2f";
+      }
+      document.getElementsByClassName("tabLabel")[tab].style.border = "2px solid #fda50f";
+      if (tab === 0) {
+        socket.emit("queryRanks", socket.id);
+      } else if (tab === 2) {
+        socket.emit("queryUserList", socket.id);
+      }
+      document.getElementsByClassName("tab")[tab].style.display = "inline-block";
+      shownTab = tab;
+    }
+    function showRank(rank, id) {
+      for (i=0; i<document.getElementsByClassName("rank").length; i++) {
+        document.getElementsByClassName("rank")[i].style.border = "2px solid #2f2f2f";
+      }
+      document.getElementsByClassName("rank")[rank].style.border = "2px solid #fda50f";
+      document.getElementById("rankName").value = ranksList[rank].name;
+      document.getElementById("rankCanMute").checked = ranksList[rank].canMute;
+      document.getElementById("rankCanEditRanks").checked = ranksList[rank].canEditRanks;
+      document.getElementById("rankColor").value = ranksList[rank].color;
+      shownRank = [rank, id];
+    }
+    if (!getCookie("name") || !getCookie("pass")) {
+      window.location.href = "/?redirectTo=admin";
+    }
+    function mute() {
+      time = ((document.getElementById("years").value * 365 * 24 * 60 * 60) +
+      (document.getElementById("days").value * 24 * 60 * 60) +
+      (document.getElementById("hours").value * 60 * 60) +
+      (document.getElementById("minutes").value * 60)) * 1000;
+      time += new Date().getTime();
+      //round to nearest minute
+      time = Math.round(time/60000)*60000;
+      socket.emit("mute",
+        document.getElementById("user").value,
+        time,
+        [document.getElementById("years").value,
+        document.getElementById("days").value,
+        document.getElementById("hours").value,
+        document.getElementById("minutes").value],
+        getCookie("name"),
+        getCookie("pass"),
+        socket.id,
+        document.getElementById("reason").value
+        );
+    }
+    socket.on("muteFailure", function(msg) {
+      document.getElementById("muteLabel").style.color = "red";
+      document.getElementById("muteLabel").innerText = msg;
+    });
+    socket.on("accountSyncError", function() {
+      clearCookie("name");
+      clearCookie("pass");
+      window.location.href = "/";
+    });
+    socket.on("muteSuccess", function(msg) {
+      document.getElementById("muteLabel").style.color = "white";
+      document.getElementById("muteLabel").innerText = msg;
+    });
+    socket.on("ranks", function(ranks) {
+      ranksList = ranks;
+      if (shownTab === 0) {
+        document.getElementById("ranksList").innerText = "";
+        for (i=0; i<ranks.length; i++) {
+          document.getElementById("ranksList").innerHTML += "<div class='rank' onclick='showRank(" + i + "," + ranks[i].id + ")'>" + ranks[i].name + "</div>"
+        }
+        if (ranks.length >0) {
+          showRank(ranks.length-1, ranks[ranks.length-1].id);
+        }
+      } else if (shownTab === 2) {
+        document.getElementById("promoteMenu").innerText = "";
+        for (i=0; i<ranks.length; i++) {
+          document.getElementById("promoteMenu").innerHTML += "<div class='rank' onclick=promote(" + ranks[i].id + ")>" + ranks[i].name + "</div>";
+        }
+      }
+    });
+    function promote(rank) {
+      socket.emit('addRank', userList[promoting], rank, getCookie("name"), getCookie("pass"), socket.id);
+      let rankData2 = ranksList.find(rankData => rankData.id === rank);
+      document.getElementsByClassName("rankTags")[promoting].innerHTML += "<div class='rankTag'>" + rankData2.name + "<div class='x' onclick=\"socket.emit('revokeRank','" + userList[promoting] + "'," + rankData2.id + "," + "getCookie('name')," + "getCookie('pass')," + "socket.id); this.parentElement.remove()\">&times;</div></div>";
+    }
+    function promoteMenu(user) {
+      document.getElementById("promoteMenu").style.top = 69 + (41 * user) + "px";
+      document.getElementById("promoteMenu").style.display = "inline-block";
+      document.getElementById("bodyClick").style.pointerEvents = "auto";
+      socket.emit("queryRanks", socket.id);
+      promoting = user;
+    }
+    socket.on("allAccounts", function(list, ranks) {
+      document.getElementById("userList").innerHTML = "";
+      userList = list;
+      for (i = 0; i<list.length; i++) {
+        document.getElementById("userList").innerHTML += "<div>" + list[i] + "<span onclick=promoteMenu(" + parseInt(i) + ");>+</span><div class='rankTags'></div></div>";
+        for (f=0; f<ranks[i].length; f++) {
+          document.getElementsByClassName("rankTags")[i].innerHTML += "<div class='rankTag'>" + ranks[i][f].name + "<div class='x' onclick=\"socket.emit('revokeRank','" + list[i] + "'," + ranks[i][f].id + "," + "getCookie('name')," + "getCookie('pass')," + "socket.id); this.parentElement.remove()\">&times;</div></div>";
+          //end cannot be one string because of chrome bugs
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

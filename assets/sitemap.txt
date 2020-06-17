@@ -1,0 +1,11 @@
+https://unnamedchat.repl.co/
+https://unnamedchat.repl.co/admin
+https://unnamedchat.repl.co/app
+https://unnamedchat.repl.co/login
+https://unnamedchat.repl.co/register
+https://unnamedchat.repl.co/verify
+https://unnamedchat.repl.co/admin.html
+https://unnamedchat.repl.co/app.html
+https://unnamedchat.repl.co/login.html
+https://unnamedchat.repl.co/register.html
+https://unnamedchat.repl.co/verify.html

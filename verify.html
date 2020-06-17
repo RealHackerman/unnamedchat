@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+
+<head>
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+	<title>Verify Your Email | Unnamed Chat</title>
+	<style>
+		body {
+			font-size: 18px;
+      background-color: #232323;
+			color: white;
+		}
+
+		body,
+		input,
+		button {
+			font-family: Roboto, sans-serif;
+		}
+
+		body,
+		html {
+			margin: 0px;
+			height: 100%;
+		}
+    #loadingAnimation {
+      display: block;
+      animation-name: loading;
+      animation-duration: 4s;
+      animation-iteration-count: infinite;
+      position: absolute;
+      background-color: #ff5555;
+      height: 3px;
+    }
+    @keyframes loading {
+      0% {left: 0px; right: 100%; width: 0px;}
+      25% {left: 0px; right: 0px; width: 100%;}
+      50% {left: 100%; right: 0px; width: 0px;}
+      75% {left: 0px; right: 0px; width: 100%;}
+      100% {left: 0px; right: 100%; width: 0px;}
+    }
+    #loadWrap {
+      width: 113px;
+      transform: rotate(316deg);
+      position: absolute;
+      top: 67px;
+      left: 10px;
+    }
+    #logoDiv {
+      display: block;
+      position: relative;
+      margin: auto;
+    }
+    #loading {
+      display: inline-block;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      position: absolute;
+      font-size: 23px;
+      font-style: italic;
+      //width: 128px;
+      width: 100%;
+      text-align: center;
+    }
+    #loading * {
+      display: inline-block;
+    }
+    #verStatus {
+      display: block;
+    }
+    #loadFinish {
+      display: block;
+      position: absolute;
+      background-color: #ff5555;
+      height: 3px;
+      left: 0px;
+      right: 0px;
+      width: 100%;
+    }
+    .loadAnimation {
+      transition: all 4s;
+    }
+	</style>
+	<script src="/socket.io/socket.io.js"></script>
+  <link rel="icon" href="/assets/logo.png" type="image/x-icon"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="Description" content="Unnamed Chat, the superior chat website" />
+</head>
+<body>
+  <div id="loading">
+    <div id="logoDiv">
+      <div id="loadWrap">
+        <div id="loadingAnimation"></div>
+      </div>
+      <img id="logo" src="/assets/logoNoLine.png" alt="Unnamed Chat logo" />
+    </div>
+    <div id="verStatus">Verifying</div>
+  </div>
+  <script>
+    var socket = io();
+    var urlParams = {};
+    var match;
+    var pl = /\+/g;
+    var search = /([^&=]+)=?([^&]*)/g;
+    var decode = function (s) {return decodeURIComponent(s.replace(pl, " "));}
+    var query  = window.location.search.substring(1);
+    while (match = search.exec(query))
+    urlParams[decode(match[1])] = decode(match[2]);
+    socket.on("connect", function() {
+      socket.on("verifySuccess", function() {
+       window.location.href = "/app";
+      });
+      socket.on("verifyFailure", function(code) {
+        document.getElementById("loadingAnimation").id = "loadFinish";
+        if (code === 0) {
+          document.getElementById("verStatus").innerText = "This code is invalid";
+        } else {
+          document.getElementById("verStatus").innerText = "This code has expired";
+        }
+      });
+      socket.emit("verifyEmail", urlParams.name, urlParams.key, socket.id);
+    });
+  </script>
+</body>
+</html>

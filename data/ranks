@@ -1,0 +1,1 @@
+[{"name":"Admin","canMute":true,"canEditRanks":true,"color":"#ff0000","id":0,"level":0},{"name":"Executive Moderator","canMute":true,"canEditRanks":false,"color":"#008000","id":1,"level":1},{"name":"Moderator","canMute":true,"canEditRanks":false,"color":"#008cd0","id":2,"level":2},{"name":"Premium","canMute":false,"canEditRanks":false,"color":"#8080ff","id":3,"level":3}]

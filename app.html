@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="en-AU">
+
+<head>
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+	<title>Unnamed Chat</title>
+	<style>
+		body {
+			font-size: 18px;
+			background-color: #3c3c3c;
+			color: white;
+      margin: 0px;
+		}
+
+		body,
+		input,
+		button {
+			font-family: Roboto, sans-serif;
+		}
+
+		body,
+		html {
+			height: 100%;
+		}
+
+		#msgBox {
+      font-size: 18px;
+			border-radius: 5px;
+			color: white;
+			padding: 15px 10px;
+			width: calc(100% - 554px);
+			background-color: #2f2f2f;
+			outline: 0px !important;
+			position: absolute;
+			left: 260px;
+			bottom: 10px;
+			height: 24px;
+      border: 0px;
+      display: inline-block;
+      border: 2px solid #232323;
+    }
+
+    #msgBox:focus {
+			border: 2px solid #fda50f;
+		}
+
+		#messages {
+      padding: 0px 15px;
+			height: calc(100% - 100px) !important;
+      width: calc(100% - 530px);
+			overflow: auto;
+      position: absolute;
+      left: 250px;
+      word-wrap:break-word;
+		}
+
+		/*custom scroll*/
+		*::-webkit-scrollbar {
+			width: 10px;
+		}
+		*::-webkit-scrollbar-thumb {
+			background-color: #232323;
+			border-radius: 16px;
+		}
+		*::-webkit-scrollbar-button {
+			display: none;
+		}
+
+    .msgBox {
+      font-size: 13px;
+      margin: 10px 0px;
+      background-color: #232323;
+      border-radius: 5px;
+      width: 440px;
+      padding: 10px 15px 15px 15px;
+      min-height: 110px;
+    }
+
+    .msgBox > .title {
+      margin: 0px;
+      margin-bottom: 10px;
+      font-size: 20px;
+      font-weight: bold;
+      width: 100%;
+    }
+
+    .msgBox * {
+      display: inline-block;
+      width: 320px;
+      margin: 2px;
+    }
+
+    .msgBox img {
+      margin: 0px 10px 10px 0px;
+      float: left;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: inline-block;
+      vertical-align: bottom;
+    }
+    .channelLabel, .settingsTab, .add {
+			background-color: #2f2f2f;
+			border-radius: 10px;
+			margin: 10px;
+			padding: 3px;
+			text-align: center;
+			cursor: pointer;
+			border: 2px solid #2f2f2f;
+		}
+    .sidebar {
+			position: absolute;
+			left: 0px;
+			top: 0px;
+			width: 250px;
+			height: 100% !important;
+			background-color: #232323;
+      overflow: auto;
+		}
+    .sideTitle {
+      margin: 10px;
+      font-weight: bold;
+      font-size: 20px;
+    }
+    .profilePic {
+      border-radius: 50%;
+      color: white;
+      height: 40px;
+      width: 40px;
+      float: left;
+    }
+    .newSender {
+      min-height: 40px;
+      padding-top: 10px;
+    }
+    .topLine, .messageText {
+      margin-left: 55px;
+    }
+    #userList {
+      width: 250px;
+      position: absolute;
+      background-color: #232323;
+      height: 100%;
+      right: 0px;
+    }
+    #userList > div {
+      margin: 15px;
+      height: 32px;
+    }
+    #userList > div > span {
+      margin-top: 5px;
+      margin-left: 10px;
+      display: inline-block;
+    }
+    .userListImg {
+      width: 32px;
+      height: 32px;
+      float: left;
+      vertical-align: middle;
+      border-radius: 50%;
+    }
+    #userOptions {
+      position: absolute;
+      bottom: 0px;
+      left: 0px;
+      width: 230px;
+      height: 30px;
+      padding: 10px;
+      background-color: #191919;
+    }
+    #userSettingsBtn {
+      display: inline-block;
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      top: 15px;
+      right: 15px;
+    }
+    #userSettings {
+      width: 100%;
+      height: 100%;
+      background-color: #3c3c3c;
+      display: none;
+      z-index: 30;
+      position: absolute;
+      overflow: hidden;
+    }
+    .settingsTabSec {
+      position: absolute;
+      height: calc(100% - 20px) !important;
+      overflow: auto;
+      width: calc(100% - 270px);
+      left: 250px;
+      padding: 20px 0px 0px 25px;
+      display: none;
+    }
+		.label {
+			color: grey;
+			font-size: 14px;
+			width: 200px;
+			display: inline-block;
+			font-weight: bold;
+		}
+    .profile {
+      margin: 20px; 
+      min-height: 100px;
+      padding: 15px;
+      width: 448px;
+    }
+    input {
+			outline: 0px;
+			border-radius: 5px;
+      padding: 5px;
+			background-color: #2f2f2f;
+			color: white;
+			margin: 5px;
+			border: 2px solid #232323;
+			font-size: 18px;
+		}
+    input:focus {
+			border: 2px solid #fda50f;
+		}
+    #editSvg {
+      background-color: #2f2f2f;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      padding: 3px;
+      position: absolute;
+      left: 100px;
+      cursor: pointer;
+      left: 80px;
+      top: 30px;
+    }
+    #loadingScreen {
+      width: 100%;
+      height: 100%;
+      background-color: #232323;
+      position: absolute;
+      z-index: 100;
+    }
+    #loading {
+      display: inline-block;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      position: absolute;
+      font-size: 23px;
+      font-style: italic;
+      width: 128px;
+      text-align: center;
+    }
+    #loading * {
+      display: inline-block;
+    }
+    #loadingAnimation {
+      animation-name: loading;
+      animation-duration: 4s;
+      animation-iteration-count: infinite;
+      position: absolute;
+      background-color: #ff5555;
+      height: 3px;
+    }
+    @keyframes loading {
+      0% {left: 0px; right: 100%; width: 0px;}
+      25% {left: 0px; right: 0px; width: 100%;}
+      50% {left: 100%; right: 0px; width: 0px;}
+      75% {left: 0px; right: 0px; width: 100%;}
+      100% {left: 0px; right: 100%; width: 0px;}
+    }
+    #loadWrap {
+      width: 113px;
+      transform: rotate(316deg);
+      position: absolute;
+      top: 67px;
+      left: 10px;
+    }
+    #logoDiv {
+      position: relative;
+    }
+    .switch {
+			position: relative;
+			display: inline-block;
+			width: 50px;
+			height: 24px;
+		}
+
+		.switch input {
+			opacity: 0;
+			width: 0;
+			height: 0;
+		}
+
+		.slider {
+			position: absolute;
+			cursor: pointer;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: #ccc;
+			transition: .4s;
+			border-radius: 34px;
+		}
+
+		.slider:before {
+			position: absolute;
+			content: "";
+			height: 16px;
+			width: 16px;
+			left: 4px;
+			bottom: 4px;
+			background-color: white;
+			transition: .4s;
+			border-radius: 50%;
+		}
+
+		input:checked+.slider {
+			background-color: #fda50f;
+		}
+
+		input:checked+.slider:before {
+			transform: translateX(26px);
+		}
+
+		.labelWrap {
+			position: absolute;
+			left: 440px;
+			top: 0px;
+		}
+
+		.smallLabel {
+			position: relative;
+			width: 100%;
+			display: inline-block;
+      margin-bottom: 15px;
+		}
+    .disclaimer {
+      font-size: 12px;
+      color: grey !important;
+    }
+    .button {
+			color: white;
+			background-color: #fda50f;
+			border-radius: 5px;
+			padding: 2px;
+			cursor: pointer;
+			display: inline-block;
+      width: 65px;
+      text-align: center;
+		}
+    .confirmBar .button {
+      right: 10px;
+      position: absolute;
+      transform: translateY(-2px);
+    }
+    .confirmBar {
+      position: absolute;
+      width: 480px;
+      background-color: #232323;
+      padding: 10px;
+      border-radius: 10px;
+      bottom: -42px;
+      transition: bottom 0.5s, left 0.1s;
+      left: 275px;
+    }
+    .settingsTabSec>.label {
+      margin-bottom: 10px;
+    }
+    .reset {
+      color: grey;
+      right: 90px;
+      text-decoration: underline;
+      position: absolute;
+      font-size: 14px;
+      transform: translateY(2px);
+      cursor: pointer;
+    }
+    .add > img {
+      border-radius: 10px;
+      display: block;
+      margin: auto;
+      padding: 5px;
+      max-width: 100px;
+      max-height: 100px;
+    }
+    .add {
+      font-weight: bold;
+      display: block;
+      text-decoration: none;
+      color: white !important;
+    }
+    div.add {
+      cursor: default;
+    }
+    a.add:active {
+      border: 2px solid #fda50f;
+    }
+    #cropBox {
+      box-shadow: 0 0 0 999px rgba(47,49,54,.6);
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      border: 2px solid white;
+      z-index: 100;
+      margin: 50px;
+      pointer-events: none;
+    }
+    #cropBoxWindow {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #2f2f2f;
+      display: none;
+      border-radius: 5px;
+    }
+    #imgCropping {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      cursor: grab;
+      border-radius: 5px;
+    }
+    #imgContainer {
+      overflow: hidden;
+      width: 500px;
+      height: 500px;
+      position: relative;
+      background-color: #191919;
+    }
+    #exitSettings {
+      top: 20px;
+      right: 20px;
+      position: absolute;
+      cursor: pointer;
+      background-color: #fda50f;
+      border-radius: 50%;
+      padding: 5px;
+      text-align: center;
+      width: 21px;
+      height: 21px;
+      display: table;
+      z-index:200;
+      font-weight: bold;
+    }
+    #creditsList {
+      margin: 18px 0px 18px 40px;
+    }
+    #creditsList > a {
+      color: white !important;
+    }
+    #creditsList > b {
+      margin-top: 15px;
+      display: inline-block;
+    }
+    #settingsBarName {
+      display: inline-block;
+      margin: 5px;
+      margin-left: 10px;
+    }
+	</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="Description" content="Unnamed Chat, the superior chat website" />
+	<script src="/socket.io/socket.io.js">
+	</script>
+  <link rel="icon" href="/assets/logo.png" type="image/x-icon"/>
+</head>
+
+<body>
+  <section id="loadingScreen">
+    <div id="loading">
+    <div id="logoDiv">
+      <div id="loadWrap">
+        <div id="loadingAnimation"></div>
+      </div>
+      <img src="/assets/logoNoLine.png" alt="Unnamed Chat logo" />
+      <span>Loading</span>
+    </div>
+    </div>
+  </section>
+  <div class="sidebar">
+		<div class="sideTitle">Unnamed Chat</div>
+		<div class="channelLabel" style="border: 2px solid #fda50f;" onclick="openChannel(0)">Text</div>
+		<div class="channelLabel" onclick="openChannel(1)">Voice</div>
+    <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/channel/UC_NkjQkGZjmU9-5F9mLZ8iQ/" class="add">
+    Sub to Sleb
+      <img
+      src="https://yt3.ggpht.com/a/AATXAJwGn2riIWZ0HfSUS7i1NJOEshECUucZXSvpCA=s288-c-k-c0xffffffff-no-rj-mo" alt="add" />
+      <div class="disclaimer">Advertisement</div>
+    </a>
+    <a target="_blank" href="https://www.youtube.com/watch?v=RuZtJQ6I4EY" rel="noopener noreferrer" class="add">Merry Shristmas 21st June
+      <img src="/assets/ads/shrek.jpg" alt="add" />
+      <div class="disclaimer">Advertisement</div>
+    </a>
+    <a target="_blank" href="https://www.youtube.com/channel/UCiUo_Kxy0LgYXf9Zl838L2A" rel="noopener noreferrer" class="add">
+      <img src="/assets/ads/slavic.png" alt="add" />
+      <div class="disclaimer">Advertisement</div>
+    </a>
+    <div id="userOptions">
+      <img class="userListImg" src="/assets/logo.png" alt="your profile pic" id="sideOwnPic"/>
+      <span id="settingsBarName"></span>
+      <img id="userSettingsBtn" src="/assets/gear.png"/>
+    </div>
+	</div>
+	<div id="messages" role="main"></div>
+  <div id="userList"></div>
+	<input id="msgBox" autocomplete="off" aria-label="Type your message here" autofocus/>
+  <div id="userSettings">
+    <div id="exitSettings" onclick="closeSettings()">&times;</div>
+    <div class="sidebar">
+      <div class="sideTitle">User Settings</div>
+      <div class="settingsTab" onclick="showSettingsTab(0)" style="border: 2px solid #fda50f;">Account</div>
+      <div class="settingsTab" onclick="showSettingsTab(1)">Email Preferences</div>
+      <div class="settingsTab" onclick="showSettingsTab(2)">Credits</div>
+    </div>
+    <section class="settingsTabSec" style="padding: 0px">
+      <div class="msgBox profile">
+        <input type="file" id="fileUpload" onchange="updateAv(this)" style="display: none" />
+        <img alt="your profile picture" src="/assets/logo.png" style="cursor: pointer" id="settingsPic" onclick="changeImg()"/>
+        <svg viewBox="0 0 96 96" id="editSvg" onclick="changeImg()">
+          <path style="fill: white;" d="M20.5,64v11.5H32l33.8-33.8L54.3,30.2L20.5,64z M74.6,32.9c1.2-1.2,1.2-3.1,0-4.3l-7.1-7.1   c-1.2-1.2-3.1-1.2-4.3,0L57.6,27L69,38.4L74.6,32.9z" />
+        </svg>
+        <span class="label">USERNAME</span>
+        <input id="name" disabled />
+      </div>
+      <div id="cropBoxWindow">
+        <div class="sideTitle" style="text-align: center">Crop</div>
+        <div id="imgContainer">
+          <div id="cropBox">
+          </div>
+          <img id="imgCropping" draggable="false" src="" />
+        </div>
+        <div class="button" style="position: relative; right: 0; margin: 10px;" onclick="finishAvCrop()">Save</div>
+      </div>
+    </section>
+    <section class="settingsTabSec">
+      <div class="label">EMAIL PREFERENCES</div>
+      <span class="smallLabel">Security Emails
+        <div class="labelWrap">
+          <label class="switch">
+            <input type="checkbox" checked disabled>
+            <span class="slider" style="cursor:not-allowed"></span>
+          </label>
+        </div>
+      </span>
+      <span class="smallLabel">News Emails
+        <div class="labelWrap">
+          <label class="switch">
+            <input type="checkbox" id="getNews" onclick="changeMailList()">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </span>
+      <span class="smallLabel">Marketing Emails
+        <div class="labelWrap">
+          <label class="switch">
+            <input type="checkbox" id="getMarketing" onclick="changeMailList()">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </span>
+      <div class="disclaimer">
+        You cannot unsubscribe from security emails
+      </div>
+    </section>
+    <div class="confirmBar" id="confirmMailLists">
+        Save email preferences <span class="reset" onclick="setMail(); changeMailList()">reset</span>
+        <span class="button" onclick="saveMailLists()">save</span>
+    </div>
+    <section class="settingsTabSec">
+      Unnamed Chat would like to acknowledge the following parties for their contribution.<br/>
+      <div id="creditsList">
+        <b>Libraries and Packages</b><br/>
+        <a rel="noopener noreferrer" href="https://expressjs.com/">Express</a><br/>
+        <a href="https://socket.io/" rel="noopener noreferrer">Socket.io</a><br/>
+        <a href="https://nodemailer.com/" rel="noopener noreferrer">Nodemailer</a><br/>
+        <b>Images</b><br/>
+        <a href="https://www.flaticon.com/authors/freepik" rel="noopener noreferrer">Freepik</a><br/>
+        <a href="https://www.flaticon.com/" rel="noopener noreferrer">Flaticon</a><br/>
+        <b>Database</b><br/>
+        <a href="https://www.mongodb.com/" rel="noopener noreferrer">Mongodb</a><br/>
+        <b>Hosting</b><br/>
+        <a href="https://repl.it/" rel="noopener noreferrer">Repl</a><br/>
+      </div>
+    </section>
+  </div>
+  <script>
+    if (location.protocol !== "https:") {
+      location.protocol = "https:";
+    }
+    showSettingsTab(0);
+    //url req
+    var urlParams = {};
+    var match
+    var pl = /\+/g
+    var search = /([^&=]+)=?([^&]*)/g
+    var decode = function (s) {return decodeURIComponent(s.replace(pl, " "));}
+    var query  = window.location.search.substring(1);
+    while (match = search.exec(query))
+    urlParams[decode(match[1])] = decode(match[2]);
+    if (urlParams.unsubscribe) {
+      document.getElementById("userSettings").style.display = "inline-block";
+      document.getElementById("name").value = getCookie("name");
+      showSettingsTab(1);
+    }
+    //sounds
+    var noteSound = new Audio();
+    //noteSound.src = "https://freesound.org/people/YourFriendJesse/sounds/235911/download/235911__yourfriendjesse__notification-sound.wav";
+    noteSound.src = "/assets/ping.mp3";
+    //ui
+    var shownChannel = 0;
+    var dataUrl;
+    var mediaRecorder;
+    var audio;
+    var awaitingSave;
+    document.getElementById("userSettingsBtn").onclick = function() {
+      document.getElementById("userSettings").style.display = "inline-block";
+    }
+    function closeSettings() {
+      if (awaitingSave) {
+        shakeSaveBar();
+        return;
+      }
+      document.getElementById("userSettings").style.display = "none";
+    }
+    function shakeSaveBar() {
+      awaitingSave.style.left = "265px";
+      setTimeout(function(){awaitingSave.style.left = "285px";}, 100);
+      setTimeout(function(){awaitingSave.style.left = "265px";}, 200);
+      setTimeout(function(){awaitingSave.style.left = "285px";}, 300);
+      setTimeout(function(){awaitingSave.style.left = "265px";}, 400);
+      setTimeout(function(){awaitingSave.style.left = "285px";}, 500);
+      setTimeout(function(){awaitingSave.style.left = "275px";}, 600);
+    }
+    function showSettingsTab(tab) {
+      if (awaitingSave) {
+        shakeSaveBar();
+        return;
+      }
+      for (i = 0; i<document.getElementsByClassName("settingsTab").length; i++) {
+        document.getElementsByClassName("settingsTab")[i].style.border = "2px solid #2f2f2f";
+        document.getElementsByClassName("settingsTabSec")[i].style.display = "none";
+      }
+      document.getElementsByClassName("settingsTab")[tab].style.border = "2px solid #fda50f";
+      document.getElementsByClassName("settingsTabSec")[tab].style.display = "inline-block";
+    }
+    function saveMailLists() {
+      mailLists[0] = document.getElementById("getNews").checked;
+      mailLists[1] = document.getElementById("getMarketing").checked;
+      changeMailList();
+      socket.emit("updateMailLists", getCookie("name"), getCookie("pass"), socket.id, mailLists[0], mailLists[1]);
+    }
+    function breakAudio() {
+      mediaRecorder.stop();
+      //mediaRecorder.start();
+      setTimeout(breakAudio, 1000);
+    }
+    function openChannel(channel) {
+      document.getElementsByClassName("channelLabel")[shownChannel].style.border = "2px solid #2f2f2f";
+      shownChannel = channel;
+      document.getElementsByClassName("channelLabel")[channel].style.border = "2px solid #fda50f";
+      if (channel === 1) {
+        navigator.mediaDevices.getUserMedia({audio: true})
+          .then(stream => {
+            mediaRecorder = new MediaRecorder(stream, {mimeType: 'audio/webm'});
+            mediaRecorder.onstop = function() {
+              mediaRecorder.start();
+            }
+            mediaRecorder.ondataavailable = function(e) {
+              if (dataUrl) {
+                URL.revokeObjectURL(dataUrl);
+              }
+              dataUrl = URL.createObjectURL(e.data);
+              socket.emit("stream", getCookie("name"), dataUrl);
+            };
+            mediaRecorder.start();
+            setTimeout(breakAudio, 1000);
+        });
+      }
+    }
+    //main
+    var socket = io();
+    var lastSender;
+    var muteEnd;
+    var avatars;
+    var doneConnect = false;
+    var mailLists;
+    var chatHTML;
+    var onlineUsers =[];
+    function changeMailList() {
+      if (document.getElementById("getNews").checked !== mailLists[0] || document.getElementById("getMarketing").checked !== mailLists[1]) {
+        awaitingSave = document.getElementById("confirmMailLists");
+        document.getElementById("confirmMailLists").style.bottom = "20px";
+      } else {
+        awaitingSave = false;
+        document.getElementById("confirmMailLists").style.bottom = "-42px";
+      }
+    }
+    function changeImg() {
+      document.getElementById("fileUpload").click();
+    }
+    var imgCropping = document.getElementById("imgCropping");
+    var initX, initY, mousePressX, mousePressY;
+    imgCropping.addEventListener("mousedown", function(event) {
+      initX = this.offsetLeft;
+      initY = this.offsetTop;
+      mousePressX = event.clientX;
+      mousePressY = event.clientY;
+      window.addEventListener("mousemove", repositionElement);
+      window.addEventListener("mouseup", function() {
+        window.removeEventListener("mousemove", repositionElement);
+      });
+    });
+    function repositionElement(event) {
+      imgCropping.style.left = initX + event.clientX - mousePressX + "px";
+      imgCropping.style.top = initY + event.clientY - mousePressY + "px";
+    }
+    function updateAv(elm) {
+      window.newAvImgData = document.createElement("img");
+      newAvImgData.onload = function() {
+        document.getElementById("imgCropping").style.left = 250-(newAvImgData.width/2) + "px";
+        document.getElementById("imgCropping").style.top = 250-(newAvImgData.height/2) + "px";
+        document.getElementById("imgCropping").src = newAvImgData.src;
+        document.getElementById("cropBoxWindow").style.display = "inline-block";
+      }
+      newAvImgData.src = URL.createObjectURL(elm.files[0]);
+    }
+    function finishAvCrop() {
+      document.getElementById("cropBoxWindow").style.display = "none";
+      let c = document.createElement("canvas");
+      c.width = 128;
+      c.height = 128;
+      c.getContext("2d").drawImage(newAvImgData, 50-parseInt(imgCropping.style.left), 50-parseInt(imgCropping.style.top), 400, 400, 0, 0, 128, 128);
+      document.getElementById("sideOwnPic").src = c.toDataURL();
+      document.getElementById("settingsPic").src = c.toDataURL();
+      socket.emit("updateAvatar", c.toDataURL(), getCookie("name"), getCookie("pass"), socket.id);
+    }
+    function clearCookie(name) {
+      document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+    }
+    function getCookie(name) {
+      var value = "; " + document.cookie;
+      var parts = value.split("; " + name + "=");
+      if (parts.length == 2) return parts.pop().split(";").shift();
+    }
+    function isMuted(time) {
+      document.getElementById("msgBox").value = "";
+      document.getElementById("msgBox").placeholder = "You are muted until ";
+      if (new Date(time).getDate() !== new Date().getDate() || new Date(time).getMonth() !== new Date().getMonth() || new Date(time).getYear() !== new Date().getYear()) {
+        //HERE
+        document.getElementById("msgBox").placeholder += new Intl.DateTimeFormat('en-AU', {year: 'numeric', month: 'numeric', day: 'numeric'}).format(time) + " at ";
+      }
+      document.getElementById("msgBox").placeholder += 
+      new Intl.DateTimeFormat('en-AU', {hour: 'numeric', minute: 'numeric', hour12: true}).format(time);
+      document.getElementById("msgBox").disabled = "true";
+      muteEnd = time;
+      checkIfMuted()
+    }
+    function checkIfMuted() {
+      if (muteEnd < new Date().getTime()) {
+        document.getElementById("msgBox").removeAttribute("disabled");
+        document.getElementById("msgBox").placeholder = "";
+      } else {
+        setTimeout(checkIfMuted, 60000 - new Date().getMilliseconds())
+      }
+    }
+    if (getCookie("name") && getCookie("pass")) {
+      socket.on("connect", function() {
+        if (doneConnect === false) {
+          console.log("emitted chatConnect: " + performance.now())
+          socket.emit("chatConnect", getCookie("name"), getCookie("pass"), socket.id);
+          window.onbeforeunload = function(e) {
+            socket.emit("disconnectInfo", getCookie("name"), getCookie("pass"));
+          }
+          doneConnect = true;
+        }
+      });
+      document.getElementById("msgBox").addEventListener("keydown", function(key) {
+        if (key.key === "Enter" && document.getElementById("msgBox").value && document.getElementById("msgBox").value.length < 500) {
+          socket.emit("msg", document.getElementById("msgBox").value, getCookie("name"), getCookie("pass"), socket.id, new Date().getTime());
+          document.getElementById("msgBox").value = "";
+        }
+      });
+      socket.on("msg", function(name, msg, time) {
+        if (msg.search("@" + getCookie("name")) > -1) {
+          noteSound.currentTime = 0
+          noteSound.play();
+        }
+        chatHTML = "";
+        addMsg(name, msg, time);
+        document.getElementById("messages").innerHTML += chatHTML;
+        document.getElementById("messages").scrollTop = 9999999999
+      });
+    } else {
+      clearCookie("name");
+      clearCookie("pass");
+      window.location.href = "/";
+    }
+    socket.on("accountSyncError", function() {
+      clearCookie("name");
+      clearCookie("pass");
+      window.location.href = "/";
+    });
+    socket.on("muteMsg", function(user, auth, duration, reason, finish) {
+      chatHTML = "";
+      generateMuteBox(user, auth, duration, reason);
+      document.getElementById("messages").innerHTML += chatHTML;
+      document.getElementById("messages").scrollTop = 9999999999;
+      if (getCookie("name") === user) {
+        isMuted(finish);
+      }
+    });
+    socket.on("warnMsg", function(user, auth, duration, reason) {
+      chatHTML = "";
+      generateWarnBox(user, auth, duration, reason);
+      document.getElementById("messages").innerHTML += chatHTML;
+      document.getElementById("messages").scrollTop = 9999999999;
+    });
+    function setMail() {
+      if (mailLists[0]) document.getElementById("getMarketing").checked = true;
+      if (mailLists[1]) document.getElementById("getNews").checked = true;
+    }
+    socket.on("firstConnect", function(log, onlineUserList, mute, verify, mailPrefs, userList) {
+      console.log("first connect start: " + performance.now());
+      //globalise users
+      window.userList = userList;
+      //chat log
+      chatHTML = "";
+      for (i=0; i<log.length; i++) {
+        if (log[i][0] === "msg") {
+          addMsg(log[i][1], log[i][2], log[i][3]);
+        } else if (log[i][0] === "mute") {
+          generateMuteBox(log[i][1], log[i][2], log[i][3], log[i][4]);
+        } else if (log[i][0] === "warn") {
+          generateWarnBox(log[i][1], log[i][2], log[i][3], log[i][4]);
+        }
+      }
+      document.getElementById("messages").innerHTML = chatHTML;
+      //online user list
+      onlineUsers = onlineUserList;
+      for (i=0; i<onlineUserList.length; i++) { 
+        document.getElementById("userList").innerHTML += "<div><img class='userListImg' src='/assets/user/" + onlineUserList[i] + ".png' alt='" + onlineUserList[i] + "s profile picture' /><span>" + onlineUserList[i] + "</span></div>"
+      }
+      //remove adds
+      if (userList.find(user => user.name === getCookie("name") && user.ranks.some(rank => rank.name === "Premium"))) {
+        let adds = document.getElementsByClassName("add");
+        for (i=0; i<adds.length; i++) {
+          adds[i].style.display = "none";
+        }
+      }
+      //mute
+      if (mute > new Date().getTime()) {
+        isMuted(mute);
+      }
+      //verified
+      if (verify === false) {
+        document.getElementById("msgBox").disabled = true;
+        document.getElementById("msgBox").placeholder = "Verify your email to post messages";
+      }
+      //own images
+      document.getElementById("sideOwnPic").src = "/assets/user/" + getCookie("name") + ".png";
+      document.getElementById("settingsPic").src = "/assets/user/" + getCookie("name") + ".png"
+      document.getElementById("name").value = getCookie("name");
+      //other
+      document.getElementById("settingsBarName").innerText = getCookie("name");
+      //email prefs
+      mailLists = mailPrefs;
+      setMail();
+      //finish
+      document.getElementById("messages").scrollTop = 9999999999;
+      document.getElementById("loadingScreen").style.display = "none";
+      console.log("finished first connect: " + performance.now());
+    });
+    function generateMuteBox(user, auth, duration, reason) {
+      lastSender = "<SERVER>";
+      chatHTML += "<div class='msgBox'><span class='title'>Mute</span><img alt='" + user + "s profile picture' src='/assets/user/" + user + ".png' /><span>User: " + user + "</span><span>By: " + auth + "</span><span>Time: " + duration[0] + " years, " + duration[1] + " days, " + duration[2] + " hours, " + duration[3] + " minutes</span><span>Reason: " + reason + "</span></div>";
+    }
+    function generateWarnBox(user, auth, duration, reason) {
+      lastSender = "<SERVER>";
+      chatHTML += "<div class='msgBox'><span class='title'>Warn</span><img alt='" + user + "s profile picture' src='/assets/user/" + user + ".png' /><span>User: " + user + "</span><span>By: " + auth + "</span><span>Expires: " + duration[0] + " years, " + duration[1] + " days, " + duration[2] + " hours, " + duration[3] + " minutes</span><span>Reason: " + reason + "</span></div>";
+    }
+    socket.on("streamFeed", function(name, stream) {
+      if (name !== getCookie("name")) {
+        audio = new Audio();
+        audio.src = stream;
+        audio.loop = false;
+        audio.play();
+      }
+    });
+    socket.on("newOnlineUser", function(name) {
+      if (onlineUsers.indexOf(name) !== -1) return;
+      onlineUsers.push("name");
+      document.getElementById("userList").innerHTML += "<div><img class='userListImg' src='/assets/user/" + name + ".png' alt='" + name + "s profile picture' /><span>" + name + "</span></div>"
+    });
+    function getUserColor(user) {
+      let bestColor = ["white", Infinity];
+      let userRanks = userList.find(item => item.name === user);
+      if (!userRanks || !userRanks.ranks.length) return "white";
+      userRanks = userRanks.ranks;
+      for (f = 0; f<userRanks.length; f++) {
+        if (userRanks[f].level < bestColor[1]) {
+          bestColor = [userRanks[f].color, userRanks[f].level];
+        }
+      }
+      return bestColor[0];
+    }
+    function addMsg(sender, msg, time) {
+      if (lastSender !== sender) {
+        if (new Date(time).getDate() !== new Date().getDate() || new Date(time).getMonth() !== new Date().getMonth() || new Date(time).getYear() !== new Date().getYear()) {
+          formatTime = new Intl.DateTimeFormat('en-AU', {month: 'long', day: 'numeric'}).format(time) + " at ";
+        } else {
+          formatTime = "Today at ";
+        }
+        formatTime += new Intl.DateTimeFormat('en-AU', {hour: 'numeric', minute: 'numeric', hour12: true}).format(time);
+        chatHTML += "<div class='newSender'><img class='profilePic' src='/assets/user/" + sender + ".png' alt='" + sender + "s profile picture' /><div class='topLine'><span style='color:" + getUserColor(sender) + "; font-weight: 500;'>" + sender + " </span><span class='disclaimer'>" + formatTime + "</span></div><div class='messageText'>" + msg + "</div></div>";
+        lastSender = sender;
+      } else {
+       chatHTML += "<div class='messageText'>" + msg + "</div>";
+      }
+    }
+  </script>
+</body>
+</html>

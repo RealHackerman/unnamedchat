@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <title>Unnamed Chat Newsletter</title>
+    <style>
+      body {
+        background-color: #232323;
+        margin: 0px
+      }
+      section {
+        font-family: 'Roboto', sans-serif;
+        font-size: 18px;
+        padding: 30px 60px 60px 60px;
+        background: linear-gradient(135deg, #3c3c3c, #fda50f);
+        color: white;
+        background-attachment: fixed;
+      }
+
+      .main {
+        background-color: #3c3c3c;
+        border-radius: 5px;
+        padding: 30px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      img {
+        margin: 5px 0px;
+      }
+
+      span {
+        margin: 2px 0px;
+        display: inline-block;
+      }
+
+      .button {
+        color: white;
+        background-color: #fda50f;
+        cursor: pointer;
+        border-radius: 5px;
+        padding: 7px;
+        margin: 15px 0px;
+        display: inline-block;
+      }
+
+      .disclaimer {
+        font-size: 12px;
+        color: grey !important;
+        margin-top: 10px;
+      }
+      .links {
+        font-size: 12px;
+        margin-top: 10px;
+        text-align: center;
+        color: white;
+      }
+      
+      .links > a {
+        color: white !important;
+      }
+
+      .disclaimer > a {
+        color: grey !important;
+      }
+
+      .title {
+        font-size: 30px;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      #havingTrouble {
+        font-size: 14px;
+        text-align: center; 
+        margin-bottom: 30px; 
+        color: darkgrey;
+      }
+    </style>
+    <link rel="icon" href="https://unnamedchat.repl.co/assets/logo.png" type="image/x-icon"/>
+  </head>
+  <body>
+    <section>
+      <div id="havingTrouble">Having trouble viewing this email? <a style="color: darkgrey !important;" href="https://unnamedchat.repl.co/assets/emailTemplates/news?name=$NAME&id=$EMAIL">Open in browser</a>.</div>
+      <div class="main">
+        <div style="text-align: center">
+          <a href='https://unnamedchat.repl.co/'>
+            <img src='https://unnamedchat.repl.co/assets/logo.png' alt='unnamed chat logo' width='100' height='100' />
+          </a>
+        </div>
+        <div class="title" id="name">Hi, $NAME</div>
+        <div style="white-space: pre-wrap;">
+Welcome to the latest Unnamed Chat newsletter.
+
+There are many new features in the latest version of Unnamed Chat, some if which include:
+You can now see someones name in the online user list when they come online without reloading the page.
+You can now ping people (audibly notify them) by typing @name.
+Names can be coloured. A persons name colour will be set by the highest rank they have.
+Messages now have timestamps.
+You can now crop your profile picture (resizing coming soon!)
+You no longer need #newMsg on the end of the main /app page.
+A cross button on settings.
+A credits tab in settings.
+A tweaked interface.
+An automatic moderator.
+A warning system.
+Advertisements on the main /app page.
+A password reset system.
+An option to view emails online if your email client breaks them.
+Unnamed premium, get no ads and a coloured name for only $1 a week.
+Backend improvements to make the page load faster.
+Many bug fixes.
+
+Hope you enjoy the new update, The Unnamed Chat Team.
+        </div>
+        <div class="links">
+          <a href="https://unnamedchat.repl.co">App</a>
+          &middot;
+          <a href="mailto:UnnamedChat@gmail.com">Email</a>
+        </div>
+        <div class="disclaimer">
+          This email was sent to you because you are subscribed to "News Emails" on  
+          <a href='https://unnamedchat.repl.co/'>unnamedchat.repl.co</a>. If you do not want to receive News Emails, <a href="https://unnamedchat.repl.co/app?unsubscribe=1">unsubscribe</a>.<br>
+          <span id="emailID">Email ID $EMAIL</span>
+        </div>
+      </div>
+    </section>
+    <script>
+      document.getElementById("havingTrouble").style.display = "none";
+      document.getElementsByTagName("section")[0].style.padding = "60px";
+      var urlParams = {};
+      var match;
+      var pl = /\+/g;
+      var search = /([^&=]+)=?([^&]*)/g;
+      var decode = function (s) {return decodeURIComponent(s.replace(pl, " "));}
+      var query  = window.location.search.substring(1);
+      while (match = search.exec(query))
+      urlParams[decode(match[1])] = decode(match[2]);
+      if (urlParams.name === undefined) {
+        document.getElementById("name").innerText = "Hi"
+      } else {
+        document.getElementById("name").innerText = "Hi, " + urlParams.name;
+      }
+      if (urlParams.id === undefined) {
+        document.getElementById("emailID").innerText = "";
+      } else {
+        document.getElementById("emailID").innerText = "Email ID " + urlParams.id;
+      }
+    </script>
+  </body>
+</html>
