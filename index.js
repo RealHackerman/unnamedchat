@@ -29,6 +29,7 @@ mdbClient.connect(err => {
   } else {
     console.log("Connected to database");
     db = mdbClient.db("main");
+    serverPermDb = mdbClient.db("serverPermDb");
   }
 });
 //end mongo

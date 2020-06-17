@@ -908,6 +908,9 @@
       return bestColor[0];
     }
     function addMsg(sender, msg, time) {
+      console.log("a");
+      window.locs = msg.find(word => word === " @");
+      console.log(locs);
       if (lastSender !== sender) {
         if (new Date(time).getDate() !== new Date().getDate() || new Date(time).getMonth() !== new Date().getMonth() || new Date(time).getYear() !== new Date().getYear()) {
           formatTime = new Intl.DateTimeFormat('en-AU', {month: 'long', day: 'numeric'}).format(time) + " at ";
