@@ -4,6 +4,8 @@ const io = require("socket.io")(http);
 const fs = require("fs");
 const nm = require("nodemailer");
 const crypto = require("crypto");
+const bcrypt = require("bcrypt");
+const performance = require("perf_hooks");
 const MongoClient = require("mongodb").MongoClient;
 const nmclient = nm.createTransport({
   service: process.env.service,
@@ -15,47 +17,83 @@ const nmclient = nm.createTransport({
 var emailId = 0;
 var verEmail;
 var subVerEmail;
-var msgLog = [];
-var userRanks;
 var onlineUsers = [];
 var logo;
 var f;
+var nextServerId;
 //mongo
 var db;
 const mdbClient = new MongoClient("mongodb+srv://" + process.env.mongoName + ":" + process.env.mongoPass + "@ucdb-cyla3.mongodb.net/test?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true});
-mdbClient.connect(err => {
+mdbClient.connect(async function(err) {
   if (err) {
     throw err;
   } else {
     console.log("Connected to database");
     db = mdbClient.db("main");
-    serverPermDb = mdbClient.db("serverPermDb");
+    nextServerId = await db.collection("id").find({"main": true}, {projection:{_id: 0}}).toArray();
+    nextServerId = nextServerId[0].servers;
+    let timeTaken = 0;
+    let rounds = 2;
+    for (i=0; i<rounds; i++) {
+      let start = performance.now();
+      admin = await db.collection("accounts").find({"name": "admin"}, {projection:{_id: 0}}).toArray();
+      //the first one is much slower
+      if (i!==0) timeTaken += performance.now() - start
+    }
+    console.log("Average db response time: " + timeTaken/(rounds-1) + "ms");
   }
 });
 //end mongo
 const emailRegex = RegExp("^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$");
-var ranks = [];
 var idCount = 0;
 //todo: implement log saving
 var log = [];
 var g;
+/*
+app.get("*", function(req, res) {
+  //able to send 503 if needed
+  res.status(503);
+  res.sendFile(__dirname + "/503.html");
+});
+*/
 app.get("/", function(req, res) {
   res.sendFile(__dirname + "/login.html");
 });
-app.get("*", function(req, res) {
-  if (false) {
-    //able to send 503 if needed
-    res.status(503);
-    res.sendFile(__dirname + "/503.html");
+app.get("/invite/*", async function(req, res) {
+  req.originalUrl = req.originalUrl.slice(8);
+  valid = await db.collection("invites").find({key: req.originalUrl}, {projection:{_id: 0}}).toArray();
+  if (valid[0]) {
+    if (valid[0].expiry < new Date().getTime()) {
+      db.collection("invites").remove(
+        {key: link}
+      );
+      res.sendFile(__dirname + "/inviteExpired.html");
+      return;
+    }
+    file = fs.readFile(__dirname + "/inviteInfo.html", async function(err, data) {
+      if (err) throw err;
+      name = await db.collection("servers").find({id: parseInt(req.originalUrl.split("-")[0])}, {projection:{_id: 0, name: 1}}).toArray();
+      data = data.toString().replace("$SERVERNAME", name[0].name);
+      res.send(data.toString());
+    })
+  } else {
+    res.sendFile(__dirname + "/inviteExpired.html");
   }
+});
+app.get("*", function(req, res) {
   if (req.originalUrl === "/.env") {
     res.status(403);
     res.sendFile(__dirname + "/403.html");
     return;
   }
-  let newReq = req.originalUrl.split("?")[0].replace("%20", " ");
+  let newReq = req.originalUrl.split("?")[0].replace(/%20/g, " ");
+  if (newReq.indexOf(".html") !== -1) {
+    res.status(404);
+    res.sendFile(__dirname + "/404.html");
+    return;
+  }
   if (!fs.existsSync(__dirname + newReq)) newReq += ".html";
-  if (!fs.existsSync(__dirname + newReq)) {
+  if (!fs.existsSync(__dirname + newReq) || newReq.indexOf(".") === -1) {
     res.status(404);
     res.sendFile(__dirname + "/404.html");
     return;
@@ -73,20 +111,7 @@ function escapeHtml(text) {
 
   return text.replace(/[&<>"']/g, function(m) {return map[m]; });
 }
-function getUserRanks(user) {
-  userRanks = [];
-  for (i=0; i<user.ranks.length; i++) {
-    userRanks.push(getRankById(user.ranks[i]));
-  }
-  return userRanks;
-}
-function getRankById(id) {
-  for (f=0; f<ranks.length; f++) {
-    if (ranks[f].id === id) {
-      return ranks[f];
-    }
-  }
-}
+
 function getRankPosById(id) {
   for (f=0; f<ranks.length; f++) {
     if (ranks[f].id === id) {
@@ -94,68 +119,88 @@ function getRankPosById(id) {
     }
   }
 }
-function hasPerm(user, perm) {
-  for (i=0; i<ranks.length; i++) {
-    if (user.ranks.some(id => id === ranks[i].id) && ranks[i][perm]) {
-      return true;
-    }
-  }
-  return false;
-}
-function rankLevel(userData) {
-  bestRank = Infinity;
-  for (i=0; i<userData.ranks.length; i++) {
-    if (getRankById(userData.ranks[i]).level < bestRank) {
-      bestRank = getRankById(userData.ranks[i]).level;
-    }
-  }
-  return bestRank;
-}
-async function getUserList() {
-  let res = await db.collection("accounts").find({}, {projection:{_id: 0}}).toArray();
-  allUserRanks = [];
+
+async function getUserList(ranksData, server) {
+  let res = await db.collection("accounts").find({
+    ["server." + server]: {$exists: true}},
+    {projection:{_id: 0, name: 1, server: 1}
+  }).toArray();
   for (g = 0; g<res.length; g++) {
-    allUserRanks.push({name: res[g].name, ranks: getUserRanks(res[g])});
+    res[g].ranks = [];
+    for (a = 0; a<res[g].server[server].ranks.length; a++) {
+      res[g].ranks[a] = ranksData.find(item => item.id === res[g].server[server].ranks[a]);
+    };
+    delete res[g].server;
   }
-  return allUserRanks;
+  return res;
 }
+
 async function getUser(user) {
   let res = await db.collection("accounts").find({"name": user}, {projection:{_id: 0}}).toArray();
   return res[0];
 }
-async function validateRequest(name, pass, socket, requiredPerms, aboveRank) {
+
+async function hasPerm(user, ranksLocal, server, perm) {
+  if (!user.server[server]) {
+    log.push([3000, new Date().getTime(), "validateRequest_hasPerm_" + perm, {user: user.name, server: server}]);
+    console.log(log[log.length-1]);
+    return false;
+  }
+  for (i=0; i<user.server[server].ranks.length; i++) {
+    if (ranksLocal.find(rank => rank.id === user.server[server].ranks[i])[perm]) return true;
+  }
+  return false;
+}
+
+function rankLevel(user, ranksLocal, server) {
+  bestRank = Infinity;
+  for (i=0; i<user.server[server].ranks.length; i++) {
+    let currentRankLevel = ranksLocal.find(rank => rank.id === user.server[server].ranks[i]).level;
+    if (currentRankLevel < bestRank) bestRank = currentRankLevel;
+  }
+  return bestRank;
+}
+
+async function validateRequest(name, pass, socket, server, requiredPerms, aboveRank) {
   if (!io.sockets.connected[socket]) return false;
   acc = await getUser(name);
   //validation
-  if (!acc || pass !== acc.pass) {
+  if (!acc || !bcrypt.compareSync(pass, acc.pass)) {
     io.sockets.connected[socket].emit("accountSyncError");
-    log.push("pass crack attempt:" + new Date().getTime());
+    log.push([1000, new Date().getTime(), "validateRequest", {user: name}]);
+    console.log(log[log.length-1]);
     return false;
   }
-  if (!requiredPerms) return acc;
-  if (acc.name === "admin") {
-    if (!aboveRank) return acc;
-    accAbove = await getUser(aboveRank);
-    return [acc, accAbove];
-  }
+  if ((!server && server !== 0) || !requiredPerms) return acc;
+  ranksLocal = await db.collection("servers").find({"id": server}, {projection:{_id: 0}}).toArray();
+  ranksLocal = ranksLocal[0].ranks;
   for (i=0; i<requiredPerms.length; i++) {
-    if (!hasPerm(acc, requiredPerms[i])) return false;
+    let res = await hasPerm(acc, ranksLocal, server, requiredPerms[i]);
+    if (!res && !acc.server[server].owner) return false;
   }
-  if (!aboveRank) return acc;
+  if (!aboveRank) return {name: acc, ranks: ranksLocal};
+  if (name === aboveRank) return {name: acc, above: acc, ranks: ranksLocal};
   accAbove = await getUser(aboveRank);
-  if (!accAbove || rankLevel(acc) >= rankLevel(accAbove))return false;
-  return [acc, accAbove];
+  if (!accAbove || !accAbove.server[server] || rankLevel(acc, ranksLocal, server) >= rankLevel(accAbove, ranksLocal, server) && !acc.server[server].owner) return false;
+  return {name: acc, above: accAbove, ranks: ranksLocal};
 }
 //conection
 io.on("connection", function(socket) {
   socket.on("chatConnect", async function(name, pass, socket) {
   acc = await validateRequest(name, pass, socket);
-  if (!acc) return;
-  allUsers = await getUserList(name);
+  let userServers = Object.keys(acc.server);
+  let serverData = {};
+  let allUsers = {};
+  for (i=0; i<userServers.length; i++) {
+    ranksLocal = await db.collection("servers").find({"id": parseInt(userServers[i])}, {projection:{_id: 0}}).toArray();
+    allUsers[userServers[i]] = await getUserList(ranksLocal[0].ranks, parseInt(userServers[i]));
+    serverData[userServers[i]] = ranksLocal[0];
+  }
   if (onlineUsers.every(user => user !== name)) {
     onlineUsers.push(name);
   }
-  io.sockets.connected[socket].emit("firstConnect", msgLog, onlineUsers, acc.mute, acc.verify, acc.mailLists, allUsers);
+  //todo fix online users
+  io.sockets.connected[socket].emit("firstConnect", onlineUsers, acc.verify, acc.mailLists, allUsers, serverData, acc.premium);
   io.emit("newOnlineUser", name);
   });
   socket.on("disconnectInfo", async function(name, pass) {
@@ -164,44 +209,15 @@ io.on("connection", function(socket) {
     onlineUsers.splice(onlineUsers.indexOf(name), 1);
   });
   //message
-  socket.on("msg", async function(msg, name, pass, socket, time) {
+  socket.on("msg", async function(msg, name, pass, socket, time, server) {
     acc = await validateRequest(name, pass, socket);
-    if (acc && acc.mute < new Date().getTime()) {
-      io.emit("msg", name, escapeHtml(msg), time);
-      msgLog.push(["msg", name, escapeHtml(msg), time]);
-      //moderation
-      let bannedWords = ["nigg", "niga", "nigro", "fag"];
-      var currentActions = 0;
-      bannedWords.forEach(word => {
-        if (msg.toLowerCase().indexOf(word) !== -1) {
-          acc.modHistory.forEach(action => {
-            if (action.type === "warn" && action.expires > new Date().getTime()) {
-              currentActions++;
-            }
-          });
-          if (currentActions >= 2) {
-          io.emit("muteMsg", name, "ModerationBot", [0,30,0,0], "3rd Warning");
-          msgLog.push(["mute", name, "ModerationBot", [0,30,0,0], "3rd Warning"]);
-          db.collection("accounts").updateOne(
-            {"name" : name},
-            {
-              $set: {"mute" : new Date().getTime() + 2592000000}, 
-              $push: {"modHistory": {type: "mute", by: "ModerationBot", expires: new Date().getTime() + 2592000000, reason: "3rd Warning"}}
-            }
-          );
-          } else {
-            io.emit("warnMsg", name, "ModerationBot", [0,30,0,0], "Inappropriate language");
-            msgLog.push(["warn", name, "ModerationBot", [0,30,0,0], "Inappropriate language"]);
-            db.collection("accounts").updateOne(
-              {"name": name},
-              {$push: {"modHistory": {type: "warn", by: "ModerationBot", expires: new Date().getTime() + 2592000000, reason: "Inappropriate language"}}}
-            );
-          }
-        }
-      });
-      fs.writeFile(__dirname + "/data/msglog", JSON.stringify(msgLog), function(err) {
-        if (err) throw err;
-      });
+    if (!acc) return;
+    if (acc && acc.mute < new Date().getTime() && acc.verify) {
+      io.to("<room>" + server).emit("msg", name, escapeHtml(msg), time);
+      db.collection("servers").updateOne(   
+        {"id": parseInt(server)},
+        {$push: {msgLog: ["msg", name, escapeHtml(msg), time]}}
+      );
     }
   });
   //login
@@ -231,18 +247,25 @@ io.on("connection", function(socket) {
       if (name.length < 20 && name.length > 0 && pass.length < 30 && pass.length >= 6 && /^[a-z0-9_-\s]+$/i.test(name) && !oldAcc && emailRegex.test(email)) {
         io.sockets.connected[socket].emit("registerSuccess");
         key = crypto.randomBytes(8).toString("hex");
-        db.collection("accounts").insertOne({
-          name: name,
-          pass: pass,
-          mute: 0,
-          ranks: [],
-          email: email,
-          mailLists: [true, true],
-          verify: false,
-          verifyKey: key,
-          //expires in 24 hours
-          verifyExpiry: new Date().getTime() + 86400000,
-          modHistory: []
+        bcrypt.genSalt(10, function(err, salt) {
+          if (err) throw err;
+          bcrypt.hash(pass, salt, function(err, hash) {
+            if (err) throw err;
+            db.collection("accounts").insertOne({
+              name: name,
+              pass: hash,
+              mute: 0,
+              ranks: [],
+              email: email,
+              mailLists: [true, true],
+              verify: false,
+              verifyKey: key,
+              //expires in 24 hours
+              verifyExpiry: new Date().getTime() + 86400000,
+              modHistory: [],
+              server: {}
+            });
+          });
         });
         fs.writeFile(__dirname + "/assets/user/" + name + ".png", logo, function(err) {
           if (err) throw err;
@@ -269,86 +292,87 @@ io.on("connection", function(socket) {
       }
   });
   //admin
-  socket.on("mute", async function(user, time, duration, auth, authPass, socket, reason) {
-    acc = await validateRequest(auth, authPass, socket, ["canMute"], user);
-    if (!acc) return;
-    io.emit("muteMsg", user, auth, duration, reason, time);
-    msgLog.push(["mute", user, auth, duration, reason]);
-    fs.writeFile(__dirname + "/data/msglog", JSON.stringify(msgLog), function(err) {
-      if (err) throw err;
-    });
+  socket.on("mute", async function(user, time, duration, auth, authPass, socket, server, reason) {
+    acc = await validateRequest(auth, authPass, socket, server, ["canMute"], user);
+    if (!acc) {
+      if (io.sockets.connected[socket]) io.sockets.connected[socket].emit("muteFailure","That account is not in this server");
+      return;
+    }
+    io.to("<room>" + server).emit("muteMsg", user, auth, duration, reason, time);
     io.sockets.connected[socket].emit("muteSuccess","User muted succesfully");
     db.collection("accounts").updateOne(
       {"name" : user},
-      {$set: {"mute" : time}}
+      {$set: {["server." + server + ".mute"]: time}}
+    );
+    db.collection("servers").updateOne(
+      {"id" : parseInt(server)},
+      {$push: {msgLog: ["mute", user, auth, duration, reason, time]}}
     );
   });
   //create rank
-  socket.on("createRank", async function(name, pass, socket) {
-    acc = await validateRequest(name, pass, socket, ["canEditRanks"]);
+  socket.on("createRank", async function(name, pass, socket, server) {
+    acc = await validateRequest(name, pass, socket, server, ["canEditRanks"]);
     if (!acc) return;
-    ranks.push({name: "New Rank", id: idCount, level: idCount, color: "white"});
-    idCount++;
-    fs.writeFile(__dirname + "/data/ranks", JSON.stringify(ranks), function(err) {
-      if (err) throw err;
-    });
-    io.sockets.connected[socket].emit("ranks", ranks);
+    let idCount = 0;
+    acc.ranks.forEach(r => {if (r.id+1 > idCount) idCount = r.id+1});
+    db.collection("servers").updateOne(
+      {"id" : parseInt(server)},
+      {$push: {ranks: {name: "New Rank", id: idCount, level: idCount, color: "#ffffff"}}}
+    );
   });
-  socket.on("editRank", async function(name, pass, socket, rankId, rankData) {
-    acc = await validateRequest(name, pass, socket, ["canEditRanks"]);
+  socket.on("editRank", async function(name, pass, socket, server, rankId, rankData) {
+    acc = await validateRequest(name, pass, socket, server, ["canEditRanks"]);
     if (!acc) return;
-    rankNumber = getRankPosById(rankId);
-    if (rankData.name.length === 0) {
-      rankData.name = ranks[rankNumber].name;
+    let oldData = acc.ranks.find(r => r.id === rankId);
+    if (rankData.name.length === 0) rankData.name = oldData.name;
+    newRankData = {
+      name: escapeHtml(rankData.name),
+      id: oldData.id,
+      level: oldData.level,
+      color: rankData.color,
+      canEditRanks: rankData.canEditRanks,
+      canMute: rankData.canMute
     }
-    rankData.name = escapeHtml(rankData.name);
-    rankData.id = ranks[rankNumber].id;
-    //  !IMPORTANT! 
-    //  remove when rank re-ordering implemented:
-    //  rankData.level = ranks[rankNumber].level;
-    //  !IMPORTANT!
-    rankData.level = ranks[rankNumber].level;
-    ranks[rankNumber] = rankData;
-    fs.writeFile(__dirname + "/data/ranks", JSON.stringify(ranks), function(err) {
-      if (err) throw err;
-    });
-    io.sockets.connected[socket].emit("ranks", ranks);
+    db.collection("servers").updateOne(
+      {id: parseInt(server), "ranks.id": oldData.id},
+      {$set: {"ranks.$": newRankData}}
+    );
   });
-  socket.on("queryRanks", function(socket) {
-    if (!socket) return;
-    io.sockets.connected[socket].emit("ranks", ranks);
-  });
-  socket.on("queryUserList", async function(socket) {
+  socket.on("queryRanks", async function(socket, server) {
     if (!io.sockets.connected[socket]) return;
-    let res = await db.collection("accounts").find({}, {projection:{_id: 0}}).toArray();
-    allUserRanks = [];
-    let names = [];
-    for (g = 0; g<res.length; g++) {
-      allUserRanks.push(getUserRanks(res[g]));
-      names.push(res[g].name);
+    let serverRanks = await db.collection("servers").find({"id": server}, {projection:{_id: 0}}).toArray();
+    serverRanks = serverRanks[0].ranks;
+    io.sockets.connected[socket].emit("ranks", serverRanks);
+  });
+  socket.on("queryUserList", async function(socket, server) {
+    if (!io.sockets.connected[socket]) return;
+    let serverRanks = await db.collection("servers").find({"id": server}, {projection:{_id: 0}}).toArray();
+    if (serverRanks[0]) {
+      serverRanks = serverRanks[0].ranks;
+    } else {
+      log.push([3001, new Date().getTime(), "queryUserList", {server: server}]);
+      console.log(log[log.length-1]);
+      return;
     }
-    io.sockets.connected[socket].emit("allAccounts", names, allUserRanks);
+    res = await getUserList(serverRanks, server);
+    io.sockets.connected[socket].emit("allAccounts", res);
   });
   //add rank to user
-  socket.on("addRank", async function(user, rank, auth, authPass, socket) {
-    acc = await validateRequest(auth, authPass, socket, ["canEditRanks"], user);
+  socket.on("addRank", async function(user, rank, auth, authPass, socket, server) {
+    acc = await validateRequest(auth, authPass, socket, server, ["canEditRanks"], user);
     if (!acc) return;
-    for (i=0; i<ranks.length; i++) {
-      if (ranks[i].id === rank && acc[1].ranks.every(id => id !== ranks[i].id)) {
-        db.collection("accounts").updateOne(
-          {"name": user},
-          {$push: {"ranks" : ranks[i].id}}
-        );
-        break;
-      }
-    }
+    if (acc.above.server[server].ranks.some(r => r === rank)) return;
+    db.collection("accounts").updateOne(
+      {"name": user},
+      {$push: {["server." + server + ".ranks"] : rank}}
+    );
   });
-  socket.on("revokeRank", async function(user, rank, auth, authPass, socket) {
-    acc = await validateRequest(auth, authPass, socket, ["canEditRanks"], user);
+  socket.on("revokeRank", async function(user, rank, auth, authPass, socket, server) {
+    acc = await validateRequest(auth, authPass, socket, server, ["canEditRanks"], user);
     if (!acc) return;
     db.collection("accounts").updateOne(
       {"name": user},
-      {$pull: {"ranks": rank}}
+      {$pull: {["server." + server + ".ranks"]: rank}}
     );
   });
   socket.on("stream", function(name, stream) {
@@ -357,7 +381,7 @@ io.on("connection", function(socket) {
   socket.on("updateAvatar", async function(data, name, pass, socket) {
     try {
       data = data.split(';base64,')[1];
-    } catch (e) {/*someone sent bad data*/}
+    } catch (e) {console.log("sent bad data"); /*someone sent bad data*/}
     acc = await validateRequest(name, pass, socket);
     if (!acc) return;
     fs.writeFile(__dirname + "/assets/user/" + name + ".png", data, {encoding: 'base64'}, function(err) {
@@ -447,20 +471,162 @@ io.on("connection", function(socket) {
       io.sockets.connected[socket].emit("passRecoverFailure", 0);
       return;
     }
-    if (new Date().getTime() > acc.verifyExpiry) {
+    if (new Date().getTime() > acc.passResetExpires) {
       io.sockets.connected[socket].emit("passRecoverFailure", 1);
       return;
     }
     io.sockets.connected[socket].emit("passRecoverSuccess");
+    bcrypt.genSalt(10, function(err, salt) {
+      if (err) throw err;
+        bcrypt.hash(pass, salt, function(err, hash) {
+          if (err) throw err;
+          db.collection("accounts").updateOne(
+            {"name" : name},
+            {
+              $set: {"pass": hash},
+              $unset: {passResetExpires: "", passResetKey: ""}
+            }
+          );
+        });
+      });
+  });
+  socket.on("getInviteLink", async function(name, pass, socket, server, expiry, maxUses) {
+    acc = await validateRequest(name, pass, socket, []);
+    if (!acc) return;
+    if (maxUses === "Infinity") maxUses = Infinity;
+    if (expiry < new Date().getTime() || maxUses < 1) return;
+    if (expiry > 8640000000000000) expiry = 8640000000000000;
+    let key = server + "-" + crypto.randomBytes(6).toString("base64").replace("/", "!");
+    db.collection("invites").insertOne({
+        key: key,
+        expiry: expiry,
+        usesLeft: maxUses
+      });
+    io.sockets.connected[socket].emit("inviteLink", key);
+  }); 
+  socket.on("confirmJoin", async function(name, pass, socket, link) {
+    let acc = await validateRequest(name, pass, socket);
+    if (!acc) return;
+    let valid = await db.collection("invites").find({key: link}, {projection:{_id: 0}}).toArray();
+    if (!valid[0]) {
+      io.sockets.connected[socket].emit("linkResponse", false, null);
+      return;
+    }
+    if (valid[0].expiry < new Date().getTime()) {
+      db.collection("invites").remove(
+        {key: link}
+      );
+      io.sockets.connected[socket].emit("linkResponse", false, null);
+      return;
+    }
+    let server = parseInt(link.split("-")[0]);
+    if (Object.keys(acc.server).indexOf(server) !== -1) {
+      io.sockets.connected[socket].emit("linkResponse", true, null);
+      return;
+    }
+    try {
+    io.sockets.connected[socket].emit("linkResponse", true, server);
+    } catch (e) {/*user redirected already*/}
     db.collection("accounts").updateOne(
-      {"name" : name},
-      {
-        $set: {"pass": pass},
-        $unset: {passResetExpires: "", passResetKey: ""}
-      }
+      {name: name},
+      {$set: {["server." + server]: {
+        ranks: [],
+        mute: 0
+        //insert more server properties here
+      }}}
+    );
+    if (valid[0].usesLeft-1 === 0) {
+      db.collection("invites").remove(
+        {key: link}
+      );
+    } else {
+      db.collection("invites").updateOne(
+        {key: link},
+        {$set: {usesLeft: valid[0].usesLeft-1}}
+      );
+    }
+  });
+  socket.on("showServer", async function(name, pass, socket, server) {
+    acc = await validateRequest(name, pass, socket);
+    if (!acc) return;
+    io.sockets.connected[socket].leave(Object.keys(io.sockets.connected[socket].adapter.rooms).find(item => item.slice(0,6) === "<room>"));
+    io.sockets.connected[socket].join("<room>" + server);
+    let serverRes = await db.collection("servers").find(
+      {"id": parseInt(server)}, 
+      {projection: {_id: 0, msgLog: 1, name: 1, id: 1}}
+    ).toArray();
+    io.sockets.connected[socket].emit("serverData", serverRes[0].msgLog, acc.server[server].mute, serverRes[0].name, serverRes[0].id);
+  });
+  socket.on("createServer", async function (name, pass, socket, serverName, icon) {
+    acc = await validateRequest(name, pass, socket);
+    if (!acc) return;
+    db.collection("servers").insertOne({
+      name: serverName,
+      id: nextServerId,
+      ranks: [],
+      msgLog: []
+    });
+    try {
+      icon = icon.split(';base64,');
+    } catch(e) {
+      icon = "";
+    }
+    if (icon[1]) {
+      fs.writeFile(__dirname + "/assets/server/" + nextServerId + ".png", icon, {encoding: 'base64'}, function(err) {
+        if (err) throw err;
+      });
+    }
+    db.collection("accounts").updateOne(
+      {name: name},
+      {$set: {["server." + nextServerId]: {
+        ranks: [],
+        mute: 0,
+        owner: true
+        //insert more server properties here
+      }}}
+    );
+    io.sockets.connected[socket].emit("serverCreated", serverName, nextServerId, [], [], [{name: name, ranks: []}]);
+    nextServerId++;
+    db.collection("id").updateOne(
+      {main: true},
+      {$set: {servers: nextServerId}}
     );
   });
 });
+/*
+function moderate() {
+  //moderation
+  let bannedWords = ["nigg", "niga", "nigro", "fag"];
+  var currentActions = 0;
+  bannedWords.forEach(word => {
+    if (msg.toLowerCase().indexOf(word) !== -1) {
+      acc.modHistory.forEach(action => {
+        if (action.type === "warn" && action.expires > new Date().getTime()) {
+          currentActions++;
+        }
+      });
+      if (currentActions >= 2) {
+      io.emit("muteMsg", name, "ModerationBot", [0,30,0,0], "3rd Warning");
+      msgLog.push(["mute", name, "ModerationBot", [0,30,0,0], "3rd Warning"]);
+      db.collection("accounts").updateOne(
+        {"name" : name},
+        {
+          $set: {"mute" : new Date().getTime() + 2592000000}, 
+          $push: {"modHistory": {type: "mute", by: "ModerationBot", expires: new Date().getTime() + 2592000000, reason: "3rd Warning"}}
+        }
+      );
+      } else {
+        io.emit("warnMsg", name, "ModerationBot", [0,30,0,0], "Inappropriate language");
+        msgLog.push(["warn", name, "ModerationBot", [0,30,0,0], "Inappropriate language"]);
+        db.collection("accounts").updateOne(
+          {"name": name},
+          {$push: {"modHistory": {type: "warn", by: "ModerationBot", expires: new Date().getTime() + 2592000000, reason: "Inappropriate language"}}}
+        );
+      }
+    }
+  });
+}
+*/
 //LOADING
 //load logo into mem
 fs.readFile(__dirname + "/assets/logo.png", function(err, data) {
@@ -468,6 +634,7 @@ fs.readFile(__dirname + "/assets/logo.png", function(err, data) {
   logo = data;
 });
 //load ranks into mem
+/*
 fs.readFile(__dirname + "/data/ranks", function(err, data) {
   if (err) {
     ranks = [];
@@ -477,6 +644,7 @@ fs.readFile(__dirname + "/data/ranks", function(err, data) {
     ranks.forEach(r => {if (r.id+1 > idCount) idCount = r.id+1});
   }
 });
+*/
 //load chat into mem
 fs.readFile(__dirname + "/data/msglog", function(err, data) {
   if (err) {
@@ -519,14 +687,29 @@ async function sendNewsletter() {
       html: subNewsEmail,
     }, function(err, info) {
       if (err) console.log(err);
-      console.log("Success: " + info.response);
+      console.log("Success: sent to " + info.accepted[0] + " with response " + info.response);
     });
-    console.log("Newsletter sent to " + emails[i].name);
+    console.log("Newsletter attempted to send to " + emails[i].name);
     emailId++;
     fs.writeFile(__dirname + "/data/emailId.txt", emailId, function(err) {
         if (err) throw err;
     });
   }
+}
+async function updateDB(prop, val, noOverwrite) {
+  let accs = await db.collection("accounts").find({}, {projection:{_id: 0}}).toArray();
+  for (i=0; i<accs.length; i++) {
+    if (!noOverwrite || !accs[i][prop]) {
+      db.collection("accounts").updateOne(
+          {"name": accs[i].name},
+          {$set: {[prop]: val}}
+          //{$unset: {[prop]: ""}}
+      );
+      console.log(accs[i].name + " was written to");
+    } else {
+      console.log(accs[i].name + " wasn't written to (won't overwrite)");
+    }
+  } 
 }
 //       //
 //start server

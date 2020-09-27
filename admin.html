@@ -390,6 +390,8 @@
     if (location.protocol !== "https:") {
       location.protocol = "https:";
     }
+    //todo: CHANGE THIS!
+    var server = parseInt(prompt("What Server?"));
     var socket = io();
     var i;
     var shownRank;
@@ -398,6 +400,7 @@
     var userList;
     var promoting;
     var userRanks;
+    var nextId = 0;
     document.getElementById("rankName").oninput = function() {
       document.getElementsByClassName("rank")[shownRank[0]].innerText = this.value;
     }
@@ -412,7 +415,8 @@
       rankData.canMute = document.getElementById("rankCanMute").checked;
       rankData.canEditRanks = document.getElementById("rankCanEditRanks").checked;
       rankData.color = document.getElementById("rankColor").value;
-      socket.emit("editRank", getCookie("name"), getCookie("pass"), socket.id, shownRank[1], rankData)
+      socket.emit("editRank", getCookie("name"), getCookie("pass"), socket.id, server, shownRank[1], rankData);
+      ranksList[shownRank[1]] = rankData;
     }
     function clearCookie(name) {
       document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
@@ -420,7 +424,12 @@
     socket.on("connect", function() {
       showTab(0);
       document.getElementById("ranksLabel").onclick = function() {
-        socket.emit("createRank", getCookie("name"), getCookie("pass"), socket.id);
+        socket.emit("createRank", getCookie("name"), getCookie("pass"), socket.id, server);
+        let nextRankPos = document.getElementById("ranksList").children.length;
+        document.getElementById("ranksList").innerHTML += "<div class='rank' onclick='showRank(" + nextRankPos + "," + nextId + ")'>New Rank</div>";
+        ranksList.push({name: "New Rank", id: nextId, level: nextId, color: "#ffffff"})
+        showRank(nextRankPos, + nextId)
+        nextId++;
       }
     });
     function showTab(tab) {
@@ -430,9 +439,9 @@
       }
       document.getElementsByClassName("tabLabel")[tab].style.border = "2px solid #fda50f";
       if (tab === 0) {
-        socket.emit("queryRanks", socket.id);
+        socket.emit("queryRanks", socket.id, server);
       } else if (tab === 2) {
-        socket.emit("queryUserList", socket.id);
+        socket.emit("queryUserList", socket.id, server);
       }
       document.getElementsByClassName("tab")[tab].style.display = "inline-block";
       shownTab = tab;
@@ -469,6 +478,7 @@
         getCookie("name"),
         getCookie("pass"),
         socket.id,
+        server,
         document.getElementById("reason").value
         );
     }
@@ -491,6 +501,7 @@
         document.getElementById("ranksList").innerText = "";
         for (i=0; i<ranks.length; i++) {
           document.getElementById("ranksList").innerHTML += "<div class='rank' onclick='showRank(" + i + "," + ranks[i].id + ")'>" + ranks[i].name + "</div>"
+          nextId = ranks[i].id+1;
         }
         if (ranks.length >0) {
           showRank(ranks.length-1, ranks[ranks.length-1].id);
@@ -503,24 +514,24 @@
       }
     });
     function promote(rank) {
-      socket.emit('addRank', userList[promoting], rank, getCookie("name"), getCookie("pass"), socket.id);
+      socket.emit('addRank', userList[promoting].name, rank, getCookie("name"), getCookie("pass"), socket.id, server);
       let rankData2 = ranksList.find(rankData => rankData.id === rank);
-      document.getElementsByClassName("rankTags")[promoting].innerHTML += "<div class='rankTag'>" + rankData2.name + "<div class='x' onclick=\"socket.emit('revokeRank','" + userList[promoting] + "'," + rankData2.id + "," + "getCookie('name')," + "getCookie('pass')," + "socket.id); this.parentElement.remove()\">&times;</div></div>";
+      document.getElementsByClassName("rankTags")[promoting].innerHTML += "<div class='rankTag'>" + rankData2.name + "<div class='x' onclick=\"socket.emit('revokeRank','" + userList[promoting] + "'," + rankData2.id + "," + "getCookie('name')," + "getCookie('pass')," + "socket.id, server); this.parentElement.remove()\">&times;</div></div>";
     }
     function promoteMenu(user) {
       document.getElementById("promoteMenu").style.top = 69 + (41 * user) + "px";
       document.getElementById("promoteMenu").style.display = "inline-block";
       document.getElementById("bodyClick").style.pointerEvents = "auto";
-      socket.emit("queryRanks", socket.id);
+      socket.emit("queryRanks", socket.id, server);
       promoting = user;
     }
-    socket.on("allAccounts", function(list, ranks) {
+    socket.on("allAccounts", function(list) {
       document.getElementById("userList").innerHTML = "";
       userList = list;
       for (i = 0; i<list.length; i++) {
-        document.getElementById("userList").innerHTML += "<div>" + list[i] + "<span onclick=promoteMenu(" + parseInt(i) + ");>+</span><div class='rankTags'></div></div>";
-        for (f=0; f<ranks[i].length; f++) {
-          document.getElementsByClassName("rankTags")[i].innerHTML += "<div class='rankTag'>" + ranks[i][f].name + "<div class='x' onclick=\"socket.emit('revokeRank','" + list[i] + "'," + ranks[i][f].id + "," + "getCookie('name')," + "getCookie('pass')," + "socket.id); this.parentElement.remove()\">&times;</div></div>";
+        document.getElementById("userList").innerHTML += "<div>" + list[i].name + "<span onclick=promoteMenu(" + parseInt(i) + ");>+</span><div class='rankTags'></div></div>";
+        for (f=0; f<list[i].ranks.length; f++) {
+          document.getElementsByClassName("rankTags")[i].innerHTML += "<div class='rankTag'>" + list[i].ranks[f].name + "<div class='x' onclick=\"socket.emit('revokeRank','" + list[i].name + "'," + list[i].ranks[f].id + "," + "getCookie('name')," + "getCookie('pass')," + "socket.id, server); this.parentElement.remove()\">&times;</div></div>";
           //end cannot be one string because of chrome bugs
         }
       }
