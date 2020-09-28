@@ -5,7 +5,7 @@ const fs = require("fs");
 const nm = require("nodemailer");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
-const performance = require("perf_hooks");
+const {PerformanceObserver, performance} = require("perf_hooks");
 const MongoClient = require("mongodb").MongoClient;
 const nmclient = nm.createTransport({
   service: process.env.service,
@@ -294,12 +294,8 @@ io.on("connection", function(socket) {
   //admin
   socket.on("mute", async function(user, time, duration, auth, authPass, socket, server, reason) {
     acc = await validateRequest(auth, authPass, socket, server, ["canMute"], user);
-    if (!acc) {
-      if (io.sockets.connected[socket]) io.sockets.connected[socket].emit("muteFailure","That account is not in this server");
-      return;
-    }
+    if (!acc) return;
     io.to("<room>" + server).emit("muteMsg", user, auth, duration, reason, time);
-    io.sockets.connected[socket].emit("muteSuccess","User muted succesfully");
     db.collection("accounts").updateOne(
       {"name" : user},
       {$set: {["server." + server + ".mute"]: time}}
@@ -341,6 +337,11 @@ io.on("connection", function(socket) {
   socket.on("queryRanks", async function(socket, server) {
     if (!io.sockets.connected[socket]) return;
     let serverRanks = await db.collection("servers").find({"id": server}, {projection:{_id: 0}}).toArray();
+    if (!serverRanks[0]) {
+      log.push([3001, new Date().getTime(), "queryUserList", {server: server}]);
+      console.log(log[log.length-1]);
+      return;
+    }
     serverRanks = serverRanks[0].ranks;
     io.sockets.connected[socket].emit("ranks", serverRanks);
   });
