@@ -1,7 +1,15 @@
 <!doctype html>
 <html lang="en-AU">
-
 <head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QSKP9BY28S"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-QSKP9BY28S');
+  </script>
 	<link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
 	<title>Unnamed Chat</title>
 	<style>
@@ -66,6 +74,9 @@
 			display: none;
 		}
 
+    #promoteMenu::-webkit-scrollbar-thumb, #moreActionsMenu::-webkit-scrollbar-thumb {
+			background-color: #2f2f2f;
+    }
     .msgBox {
       font-size: 13px;
       margin: 10px 0px;
@@ -101,7 +112,7 @@
       height: 80px;
       border-radius: 50%;
     }
-    .channelLabel, .settingsTab, .add {
+    .channelLabel, .settingsTab, .add, .tabLabel {
 			background-color: #2f2f2f;
 			border-radius: 10px;
 			margin: 10px;
@@ -222,7 +233,7 @@
 			margin: 5px;
 			border: 2px solid #232323;
 			font-size: 18px;
-      transition: all 0.5s;
+      transition: all 0.3s;
 		}
     input:focus {
 			border: 2px solid #fda50f;
@@ -331,7 +342,7 @@
 
 		.labelWrap {
 			position: absolute;
-			left: 440px;
+			right: 0px;
 			top: 0px;
 		}
 
@@ -339,7 +350,7 @@
 			position: relative;
 			width: 100%;
 			display: inline-block;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
 		}
     .disclaimer {
       font-size: 12px;
@@ -359,6 +370,7 @@
       right: 10px;
       position: absolute;
       transform: translateY(-2px);
+      padding: 2px;
     }
     .confirmBar {
       position: absolute;
@@ -436,7 +448,7 @@
       position: relative;
       background-color: #191919;
     }
-    #exitSettings {
+    #exitSettings, #exitAdminPanel {
       top: 20px;
       right: 20px;
       position: absolute;
@@ -745,6 +757,254 @@
     left: 100%;
     transition: left 0.5s;
   }
+  input[type=number] {
+		width: 60px;
+	}
+
+  #mute {
+    top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+  }
+
+  .tab {
+    position: absolute;
+    display: none;
+    left: 250px;
+    right: 0px;
+  }
+
+  #ranksList {
+		height: calc(100% - 40px);
+		width: 200px;
+	}
+
+  .adminLabel {
+    color: grey;
+    font-size: 14px;
+    width: 200px;
+    display: inline-block;
+    font-weight: bold;
+    margin-left: 13px;
+    margin-top: 10px;
+  }
+
+  #ranksLabel {
+    position: relative;
+    cursor: pointer;
+  }
+
+  #ranksLabel>span {
+    position: absolute;
+    right: 25px;
+    top: -3px;
+    font-size: 18px;
+  }
+
+  #ranksLabel:hover {
+    color: #888888;
+  }
+  
+  .rank, .otherAction {
+    border-radius: 10px;
+    background-color: #2f2f2f;
+    border: 2px solid #2f2f2f;
+    margin: 10px;
+    padding: 3px;
+    text-align: center;
+    cursor: pointer;
+    height: 21px;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  #rankSettings {
+    height: 100%;
+    display: inline-block;
+    position: absolute;
+    top: 0px;
+    right: 30%;
+    left: 250px;
+    padding-right: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  #ranks {
+    height: 100%;
+  }
+
+  #rankSettings>input {
+    margin-top: 10px;
+    width: calc(100% - 13px) !important;
+    text-align: left;
+    width: 100%;
+  }
+
+  #rankSettings>.label {
+    margin-left: 0px;
+    width: 100%;
+  }
+
+  #saveButton {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+  }
+
+  #members {
+    right: 30%;
+  }
+
+  #adminUserList>div {
+    width: 100%;
+    border-radius: 10px;
+    background-color: #2f2f2f;
+    border: 2px solid #2f2f2f;
+    margin: 10px;
+    padding: 5px;
+    text-align: left;
+    height: 50px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  #adminUserList>div>span {
+    position: absolute;
+    left: 195px;
+    display: inline-block;
+    color: grey;
+    font-weight: bold;
+    cursor: pointer;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 1px solid grey;
+    border-radius: 50%;
+    width: 21px;
+    height: 21px;
+    text-align: center;
+  }
+  #adminUserList > div > img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-right: 10px;
+  }
+
+  .moreActions {
+    position: absolute;
+    right: 0px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 21px !important;
+    height: 21px !important;
+    padding: 6px;
+    background-color: #232323;
+    cursor: pointer;
+  }
+
+  #promoteMenu, #moreActionsMenu {
+    width: 250px;
+    height: 340px;
+    display: none;
+    background-color: #232323;
+    border-radius: 10px;
+    position: absolute;
+    left: 200px;
+    z-index: 30;
+    overflow: auto;
+  }
+
+  #moreActionsMenu {
+    left: 530px;
+  }
+
+  #bodyClick {
+    z-index: 29;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    pointer-events: none;
+  }
+
+  .rankTags {
+    left: 220px;
+    position: absolute;
+    display: inline-block;
+    overflow: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 350px;
+  }
+
+  .rank:hover, .otherAction:hover {
+    border: 2px solid #fda50f;
+  }
+
+  .rankTag {
+    display: inline-block;
+    margin: 2.5px 0px 2.5px 10px;
+    background-color: #232323;
+    border-radius: 5px;
+    padding: 3px 5px;
+    font-size: 13px;
+  }
+
+  .x {
+    display: inline-block;
+    cursor: pointer;
+    font-weight: bold;
+    color: grey;
+    margin-left: 10px;
+  }
+
+  #muteBox, #banBox {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    text-align: center;
+    padding: 30px;
+    border-radius: 10px;
+    background-color: #232323;
+    z-index: 500;
+  }
+
+  #muteBox input, #banBox input {
+    text-align: center;
+  }
+
+  #reason, #banReason {
+    width: calc(100% -  144px);
+  }
+
+  /* remove arrows */
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  #adminPanelFrame {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 300;
+    background-color: #3c3c3c;
+    display: none;
+  }
+
+  #adminPanelFrame .label, #adminPanelFrame .smallLabel {
+    margin-top: 10px;
+    margin-bottom: 0px;
+  }
 	</style>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="Description" content="Unnamed Chat, the superior chat website" />
@@ -768,7 +1028,7 @@
   <div id="home">
     <div class="center">
       <div id="welcome"></div>
-      <div id="notice">Unnamed Chat has undergone some extreme changes to bring multiple servers. The functionality of this version is currently limited, but more features will arrive soon. If you find any bugs, make sure to report them <a href="mailto:unnamedchat@gmail.com">here</a>. You can still use the old site at <a href="https://unnamedchat.repl.co/app">unnamedchat.repl.co</a></div>
+      <div id="notice">I have coded a new maths game. If you are here for my maths game, <a href="/maths">click here</a></div>
     </div>
   </div>
   <div id="addServerBlackout" onclick="closeJoinServer()"></div>
@@ -817,7 +1077,7 @@
       <div class="heading">Invite People</div>
       <div class="center" style="width: 100%; text-align: center;">
         <div>
-          <input id="linkInputRead" readonly />
+          <input id="linkInputRead" readonly style="width:400px; text-align:center;" />
           <span class="button" onclick='navigator.clipboard.writeText(lastKey).then(function(){document.getElementById("copyResponse").innerText="Copied!"}, function(){document.getElementById("copyResponse").innerText="Your browser does not support the clipboard"});'>Copy</span>
         </div>
         <div id="copyResponse"></div>
@@ -827,8 +1087,9 @@
   <div class="sidebar" id="mainSidebar">
 		<div class="sideTitle" id="serverName">Unnamed Chat</div><div id="serverActions" onclick="showServerActions()">V</div>
     <div id="actionsList">
-      <div class="serverAction" onclick="alert('no')">Server settings</div>
+      <div class="serverAction" onclick="document.getElementById('adminPanelFrame').style.display = 'block'; updateAdmin()">Server settings</div>
       <div class="serverAction" onclick="document.getElementById('linkOptions').style.display = 'block'; document.getElementById('linkSettingsBlackout').style.display = 'block';">Get invite link</div>
+      <div class="serverAction" onclick="socket.emit('leaverServer', getCookie('name'), getCookie('pass'),socket.id, serverId)">Leave Server</div>
     </div>
     <div id="channels">
       <div class="channelLabel" style="border: 2px solid #fda50f;" onclick="openChannel(0)">Text</div>
@@ -877,7 +1138,7 @@
         <div class="button" style="position: relative; right: 0; margin: 10px;" onclick="finishAvCrop()">Save</div>
       </div>
     </section>
-    <section class="settingsTabSec">
+    <section class="settingsTabSec" style="width: 500px">
       <div class="label">EMAIL PREFERENCES</div>
       <span class="smallLabel">Security Emails
         <div class="labelWrap">
@@ -979,6 +1240,101 @@
       <span class="button" style="position: absolute; bottom: 30px; transform: translateX(-50%)" onclick="sendCreateServer()">Create</span>
     </section>
   </div>
+  <!-- ADMIN PANEL -->
+  <div id="adminPanelFrame">
+    <div id="exitAdminPanel" onclick="if (awaitingSave) {shakeRanksSaveBar(); return;} document.getElementById('adminPanelFrame').style.display='none';">&times;</div>
+    <div id="bodyClick" onclick="this.style.pointerEvents='none'; document.getElementById(hideElement).style.display = 'none'"></div>
+    <div class="sidebar">
+      <div class="sideTitle">Admin Panel</div>
+      <div class="tabLabel" onclick="showTab(0)">Ranks</div>
+      <div class="tabLabel" onclick="showTab(1)">Members</div>
+    </div>
+    <!--permissions-->
+    <section id="ranks" class="tab">
+      <div class="adminLabel" id="ranksLabel">RANKS
+        <span>+</span>
+      </div>
+      <div id="ranksList">
+      </div>
+      
+      <div id="rankSettings">
+
+        <div class="label" style="margin-top: 10px">DISPLAY</div>
+        <input id="rankName" style="margin-left: 0px" />
+
+        <span class="smallLabel">Colour
+          <div class="labelWrap">
+            <input type="color" id="rankColor" onchange="showConfirmBar()" />
+          </div>
+        </span>
+
+        <div class="label">GENERAL</div>
+        <span class="smallLabel">Can Edit Ranks
+        <div class="labelWrap">
+          <label class="switch">
+            <input type="checkbox" id="rankCanEditRanks" onchange="showConfirmBar()">
+            <span class="slider"></span>
+          </label>
+        </div>
+        </span>
+
+        <div class="label">MODERATION</div>
+        <span class="smallLabel">Can Mute
+        <div class="labelWrap">
+          <label class="switch">
+            <input type="checkbox" id="rankCanMute" onchange="showConfirmBar()">
+            <span class="slider"></span>
+          </label>
+        </div>
+        </span>
+        <span class="smallLabel">Can Ban
+        <div class="labelWrap">
+          <label class="switch">
+            <input type="checkbox" id="rankCanBan" onchange="showConfirmBar()">
+            <span class="slider"></span>
+          </label>
+        </div>
+        </span>
+
+        <div class="confirmBar" id="confirmRankChange" style="left: 516px; position: fixed;">
+        Save rank changes 
+          <span class="reset" onclick="awaitingSave = false;  document.getElementById('confirmRankChange').style.bottom = '-42px'; showRank(shownRank[0], shownRank[1])">reset</span>
+        <span class="button" onclick="saveRankChanges()">save</span>
+        </div>
+      </div>
+    </section>
+    <!-- user list + actions -->
+    <section id="members" class="tab">
+      <span class='adminLabel'>USER LIST</span>
+      <div id="adminUserList">
+      </div>
+      <div id="promoteMenu"></div>
+      <div id="moreActionsMenu">
+        <div class="otherAction" onclick="showMuteBox()">Mute</div>
+        <div class="otherAction" onclick="alert('no')">Kick</div>
+        <div class="otherAction" onclick="showBanBox()">Ban</div>
+      </div>
+    </section>
+    <div id="muteBox">
+      <div class="heading" id="muting">Muting</div>
+      <div><input id="reason" placeholder="reason"></div>
+      <input type="number" id="years" placeholder="y">
+      <input type="number" id="days" placeholder="d">
+      <input type="number" id="hours" placeholder="h">
+      <input type="number" id="minutes" placeholder="m">
+      <div class="button" onclick="mute()">Mute</div>
+    </div>
+    <div id="banBox">
+      <div class="heading" id="banning">Banning</div>
+      <div><input id="banReason" placeholder="reason"></div>
+      <input type="number" id="banYears" placeholder="y">
+      <input type="number" id="banDays" placeholder="d">
+      <input type="number" id="banHours" placeholder="h">
+      <input type="number" id="banMinutes" placeholder="m">
+      <div class="button" onclick="ban()">Ban</div>
+    </div>
+  </div>
+  <audio id="callAudio" autoplay></audio>
   <script>
     if (location.protocol !== "https:") {
       location.protocol = "https:";
@@ -1029,7 +1385,6 @@
     //ui
     var shownChannel = 0;
     var dataUrl;
-    var mediaRecorder;
     var audio;
     var awaitingSave;
     document.getElementById("userSettingsBtn").onclick = function() {
@@ -1068,6 +1423,21 @@
       document.getElementById("linkOptionsSlide").style.right = "13px"
       document.getElementById("linkCodeSlide").style.left = "100%";
       document.getElementById('linkOptions').style.display = 'none'; document.getElementById('linkSettingsBlackout').style.display = 'none';
+    }
+    function showConfirmBar() {
+      if (
+        document.getElementById("rankName").value === ranksList[shownRank[0]].name &&
+        document.getElementById("rankCanMute").checked === ranksList[shownRank[0]].canMute &&
+        document.getElementById("rankCanEditRanks").checked === ranksList[shownRank[0]].canEditRanks &&
+        document.getElementById("rankColor").value === ranksList[shownRank[0]].color &&
+        document.getElementById("rankCanBan").checked === ranksList[shownRank[0]].canBan
+      ) {
+        document.getElementById("confirmRankChange").style.bottom = "-42px";
+        awaitingSave = false;
+      } else {
+        document.getElementById("confirmRankChange").style.bottom = "20px";
+        awaitingSave = document.getElementById("confirmRankChange");
+      }
     }
     function getLink() {
       document.getElementById("linkExpires").style.borderColor = "#232323";
@@ -1108,6 +1478,15 @@
       setTimeout(function(){awaitingSave.style.left = "285px";}, 500);
       setTimeout(function(){awaitingSave.style.left = "275px";}, 600);
     }
+    function shakeRanksSaveBar() {
+      awaitingSave.style.left = "516px";
+      setTimeout(function(){awaitingSave.style.left = "526px";}, 100);
+      setTimeout(function(){awaitingSave.style.left = "506px";}, 200);
+      setTimeout(function(){awaitingSave.style.left = "526px";}, 300);
+      setTimeout(function(){awaitingSave.style.left = "506px";}, 400);
+      setTimeout(function(){awaitingSave.style.left = "526px";}, 500);
+      setTimeout(function(){awaitingSave.style.left = "516";}, 600);
+    }
     function showSettingsTab(tab) {
       if (awaitingSave) {
         shakeSaveBar();
@@ -1126,37 +1505,46 @@
       changeMailList();
       socket.emit("updateMailLists", getCookie("name"), getCookie("pass"), socket.id, mailLists[0], mailLists[1]);
     }
-    function breakAudio() {
-      mediaRecorder.stop();
-      //mediaRecorder.start();
-      setTimeout(breakAudio, 1000);
-    }
-    function openChannel(channel) {
+    pc = new RTCPeerConnection();
+    pc.ontrack = function(stream) {
+      console.log(stream);
+      document.getElementById("callAudio").srcObject = stream.streams[0];
+    };
+    async function openChannel(channel) {
       document.getElementsByClassName("channelLabel")[shownChannel].style.border = "2px solid #2f2f2f";
       shownChannel = channel;
       document.getElementsByClassName("channelLabel")[channel].style.border = "2px solid #fda50f";
       if (channel === 1) {
-        navigator.mediaDevices.getUserMedia({audio: true})
-          .then(stream => {
-            mediaRecorder = new MediaRecorder(stream, {mimeType: 'audio/webm'});
-            mediaRecorder.onstop = function() {
-              mediaRecorder.start();
-            }
-            mediaRecorder.ondataavailable = function(e) {
-              if (dataUrl) {
-                URL.revokeObjectURL(dataUrl);
-              }
-              dataUrl = URL.createObjectURL(e.data);
-              socket.emit("stream", getCookie("name"), dataUrl);
-            };
-            mediaRecorder.start();
-            setTimeout(breakAudio, 1000);
-        });
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(new RTCSessionDescription(offer));
+        socket.emit("sendCallOffer", getCookie("name"), getCookie("pass"), socket.id, serverId, offer);
+        navigator.getUserMedia(
+          {audio: true},
+          stream => {
+            stream.getTracks().forEach(track => pc.addTrack(track, stream));
+          },
+          error => {
+            console.error(error);
+          }
+        );
       }
     }
+    socket.on("callOffer", async function(socketId, offer) {
+      if (socketId === socket.id) return;
+      //let pc = new RTCPeerConnection();
+      await pc.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(new RTCSessionDescription(answer));
+      socket.emit("sendCallAnswer", getCookie("name"), getCookie("pass"), socket.id, serverId, socketId, answer);
+    });
+    socket.on("callAnswer", async function(answer) {
+      //let pc = new RTCPeerConnection();
+      await pc.setRemoteDescription(new RTCSessionDescription(answer));
+    });
     function showServer(server, elm) {
       serverId = server;
       socket.emit("showServer", getCookie("name"), getCookie("pass"), socket.id, server);
+      updateAdmin();
       //pull from cache
       setServerInfo(servers[server].msgLog, servers[server].mute, servers[server].name);
       //highlight and display
@@ -1346,6 +1734,15 @@
         isMuted(finish);
       }
     });
+    socket.on("banMsg", function(user, auth, duration, reason) {
+      chatHTML = "";
+      generateBanBox(user, auth, duration, reason);
+      document.getElementById("messages").innerHTML += chatHTML;
+      document.getElementById("messages").scrollTop = 9999999999;
+      if (getCookie("name") === user) {
+        location.reload();
+      }
+    });
     socket.on("warnMsg", function(user, auth, duration, reason) {
       chatHTML = "";
       generateWarnBox(user, auth, duration, reason);
@@ -1417,6 +1814,10 @@
       lastSender = "<SERVER>";
       chatHTML += "<div class='msgBox'><span class='title'>Mute</span><img alt='" + user + "s profile picture' src='/assets/user/" + user + ".png' /><span>User: " + user + "</span><span>By: " + auth + "</span><span>Time: " + duration[0] + " years, " + duration[1] + " days, " + duration[2] + " hours, " + duration[3] + " minutes</span><span>Reason: " + reason + "</span></div>";
     }
+    function generateBanBox(user, auth, duration, reason) {
+      lastSender = "<SERVER>";
+      chatHTML += "<div class='msgBox'><span class='title'>Ban</span><img alt='" + user + "s profile picture' src='/assets/user/" + user + ".png' /><span>User: " + user + "</span><span>By: " + auth + "</span><span>Time: " + duration[0] + " years, " + duration[1] + " days, " + duration[2] + " hours, " + duration[3] + " minutes</span><span>Reason: " + reason + "</span></div>";
+    }
     function generateWarnBox(user, auth, duration, reason) {
       lastSender = "<SERVER>";
       chatHTML += "<div class='msgBox'><span class='title'>Warn</span><img alt='" + user + "s profile picture' src='/assets/user/" + user + ".png' /><span>User: " + user + "</span><span>By: " + auth + "</span><span>Expires: " + duration[0] + " years, " + duration[1] + " days, " + duration[2] + " hours, " + duration[3] + " minutes</span><span>Reason: " + reason + "</span></div>";
@@ -1435,6 +1836,8 @@
       document.getElementById("userList").innerHTML += "<div><img class='userListImg' src='/assets/user/" + name + ".png' alt='" + name + "s profile picture' /><span>" + name + "</span></div>"
     });
     function getUserColor(user) {
+      //egg
+      //if (user === "AUZZIE") return "pink";
       let bestColor = ["white", Infinity];
       let userRanks = userList[serverId].find(item => item.name === user);
       if (!userRanks || !userRanks.ranks.length) return "white";
@@ -1460,6 +1863,8 @@
       document.getElementById("serverName").innerText = "Unnamed Chat";
     }
     function addMsg(sender, msg, time) {
+      tag = "";
+      //if (sender === "AUZZIE") tag = "[PINK] ";
       if (lastSender !== sender) {
         if (new Date(time).getDate() !== new Date().getDate() || new Date(time).getMonth() !== new Date().getMonth() || new Date(time).getYear() !== new Date().getYear()) {
           formatTime = new Intl.DateTimeFormat('en-AU', {month: 'long', day: 'numeric'}).format(time) + " at ";
@@ -1467,7 +1872,7 @@
           formatTime = "Today at ";
         }
         formatTime += new Intl.DateTimeFormat('en-AU', {hour: 'numeric', minute: 'numeric', hour12: true}).format(time);
-        chatHTML += "<div class='newSender'><img class='profilePic' src='/assets/user/" + sender + ".png' alt='" + sender + "s profile picture' /><div class='topLine'><span style='color:" + getUserColor(sender) + "; font-weight: 500;'>" + sender + " </span><span class='disclaimer'>" + formatTime + "</span></div><div class='messageText'>" + msg + "</div></div>";
+        chatHTML += "<div class='newSender'><img class='profilePic' src='/assets/user/" + sender + ".png' alt='" + sender + "s profile picture' onerror='this.src=\"/assets/logo.png\"' /><div class='topLine'><span style='color:" + getUserColor(sender) + "; font-weight: 500;'>" + tag + sender + " </span><span class='disclaimer'>" + formatTime + "</span></div><div class='messageText'>" + msg + "</div></div>";
         lastSender = sender;
       } else {
        chatHTML += "<div class='messageText'>" + msg + "</div>";
@@ -1489,8 +1894,8 @@
       }
     });
     socket.on("inviteLink", function(key) {;
-      document.getElementById("linkInputRead").value = key;
-      window.lastKey = key;
+      document.getElementById("linkInputRead").value = "unnamedchat.repl.co/invite/" + key;
+      window.lastKey = "unnamedchat.repl.co/invite/" + key;
       document.getElementById("linkOptionsSlide").style.right = "100%"
       document.getElementById("linkCodeSlide").style.left = "0px";
     });
@@ -1506,16 +1911,22 @@
           generateMuteBox(log[i][1], log[i][2], log[i][3], log[i][4]);
         } else if (log[i][0] === "warn") {
           generateWarnBox(log[i][1], log[i][2], log[i][3], log[i][4]);
+        } else if (log[i][0] === "ban") {
+          generateBanBox(log[i][1], log[i][2], log[i][3], log[i][4]);
         } else {
           console.warn("[Unhandled msg type] no handler for msg type '" + log[i][0] + "'")
         }
       }
       servers[serverId].msgLog = log;
       document.getElementById("messages").innerHTML = chatHTML;
+      document.getElementById("messages").scrollTop = 9999999999;
       }
       //mute
       if (mute > new Date().getTime()) {
         isMuted(mute);
+      } else {
+        document.getElementById("msgBox").removeAttribute("disabled");
+        document.getElementById("msgBox").placeholder = "";
       }
       //server name
       document.getElementById("serverName").innerText = name;
@@ -1528,6 +1939,230 @@
         return;
       }
       setServerInfo(log, mute, name, false);
+    });
+  </script>
+  <script>
+    var i;
+    var shownRank;
+    var rankData;
+    var shownTab;
+    var userListAdmin;
+    var promoting;
+    var userRanks;
+    var nextId = 0;
+    document.getElementById("rankName").oninput = function() {
+      showConfirmBar();
+      document.getElementsByClassName("rank")[shownRank[0]].innerText = this.value;
+    }
+    function getCookie(name) {
+      var value = "; " + document.cookie;
+      var parts = value.split("; " + name + "=");
+      if (parts.length == 2) return parts.pop().split(";").shift();
+    }
+    function saveRankChanges() {
+      awaitingSave = false;
+      document.getElementById("confirmRankChange").style.bottom = "-42px";
+      rankData = {};
+      rankData.name = document.getElementById("rankName").value;
+      rankData.canMute = document.getElementById("rankCanMute").checked;
+      rankData.canEditRanks = document.getElementById("rankCanEditRanks").checked;
+      rankData.color = document.getElementById("rankColor").value;
+      rankData.canBan = document.getElementById("rankCanBan").checked;
+      socket.emit("editRank", getCookie("name"), getCookie("pass"), socket.id, serverId, shownRank[1], rankData);
+      ranksList[shownRank[1]] = rankData;
+    }
+    function clearCookie(name) {
+      document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+    }
+    document.getElementById("ranksLabel").onclick = function() {
+      socket.emit("createRank", getCookie("name"), getCookie("pass"), socket.id, serverId);
+      let nextRankPos = document.getElementById("ranksList").children.length;
+      document.getElementById("ranksList").innerHTML += "<div class='rank' onclick='showRank(" + nextRankPos + "," + nextId + ")'>New Rank</div>";
+      ranksList.push({
+          name: "New Rank", 
+          id: nextId, 
+          level: nextId, 
+          color: "#ffffff",
+          canMute: false,
+          canEditRanks: false,
+          canBan: false,
+      });
+      showRank(nextRankPos, + nextId)
+      nextId++;
+    }
+    function showTab(tab) {
+      if (awaitingSave) {
+        shakeRanksSaveBar();
+        return;
+      }
+      for (i=0; i<document.getElementsByClassName("tab").length; i++) {
+        document.getElementsByClassName("tab")[i].style.display = "none";
+        document.getElementsByClassName("tabLabel")[i].style.border = "2px solid #2f2f2f";
+      }
+      document.getElementsByClassName("tabLabel")[tab].style.border = "2px solid #fda50f";
+      if (tab === 0) {
+        socket.emit("queryRanks", socket.id, serverId);
+      } else if (tab === 1) {
+        socket.emit("queryUserList", socket.id, serverId);
+        socket.emit("queryPerms", getCookie("name"), getCookie("pass"), socket.id, serverId);
+      }
+      document.getElementsByClassName("tab")[tab].style.display = "inline-block";
+      shownTab = tab;
+    }
+    function showRank(rank, id) {
+      if (awaitingSave) {
+        shakeRanksSaveBar();
+        return;
+      }
+      for (i=0; i<document.getElementsByClassName("rank").length; i++) {
+        document.getElementsByClassName("rank")[i].style.border = "2px solid #2f2f2f";
+      }
+      document.getElementsByClassName("rank")[rank].style.border = "2px solid #fda50f";
+      document.getElementById("rankName").value = ranksList[rank].name;
+      document.getElementById("rankCanMute").checked = ranksList[rank].canMute;
+      document.getElementById("rankCanEditRanks").checked = ranksList[rank].canEditRanks;
+      document.getElementById("rankColor").value = ranksList[rank].color;
+      document.getElementById("rankCanBan").checked = ranksList[rank].canBan;
+      shownRank = [rank, id];
+    }
+    if (!getCookie("name") || !getCookie("pass")) {
+      window.location.href = "/?redirectTo=admin";
+    }
+    function mute() {
+      document.getElementById("muteBox").style.display = "none";
+      time = ((document.getElementById("years").value * 365 * 24 * 60 * 60) +
+      (document.getElementById("days").value * 24 * 60 * 60) +
+      (document.getElementById("hours").value * 60 * 60) +
+      (document.getElementById("minutes").value * 60)) * 1000;
+      time += new Date().getTime();
+      //round to nearest minute
+      time = Math.round(time/60000)*60000;
+      socket.emit("mute",
+        userListAdmin[actionsFor].name,
+        time,
+        [document.getElementById("years").value,
+        document.getElementById("days").value,
+        document.getElementById("hours").value,
+        document.getElementById("minutes").value],
+        getCookie("name"),
+        getCookie("pass"),
+        socket.id,
+        serverId,
+        document.getElementById("reason").value
+      );
+    }
+    function ban() {
+      document.getElementById("banBox").style.display = "none";
+      time = ((document.getElementById("banYears").value * 365 * 24 * 60 * 60) +
+      (document.getElementById("banDays").value * 24 * 60 * 60) +
+      (document.getElementById("banHours").value * 60 * 60) +
+      (document.getElementById("banMinutes").value * 60)) * 1000;
+      time += new Date().getTime();
+      //round to nearest minute
+      time = Math.round(time/60000)*60000;
+      socket.emit("ban",
+        userListAdmin[actionsFor].name,
+        time,
+        [document.getElementById("banYears").value,
+        document.getElementById("banDays").value,
+        document.getElementById("banYears").value,
+        document.getElementById("banMinutes").value],
+        getCookie("name"),
+        getCookie("pass"),
+        socket.id,
+        serverId,
+        document.getElementById("banReason").value
+      );
+    }
+    function showMuteBox() {
+      document.getElementById("muting").innerText = "Muting " + userListAdmin[actionsFor].name;
+      document.getElementById(hideElement).style.display = "none"
+      document.getElementById("muteBox").style.display = "block";
+      document.getElementById("bodyClick").style.display = "block";
+      document.getElementById("bodyClick").style.pointerEvents = "auto";
+      hideElement = "muteBox";
+    }
+    function showBanBox() {
+      document.getElementById("banning").innerText = "Banning " + userListAdmin[actionsFor].name;
+      document.getElementById(hideElement).style.display = "none"
+      document.getElementById("banBox").style.display = "block";
+      document.getElementById("bodyClick").style.display = "block";
+      document.getElementById("bodyClick").style.pointerEvents = "auto";
+      hideElement = "banBox";
+    }
+    function promote(rank) {
+      socket.emit('addRank', userListAdmin[promoting].name, rank, getCookie("name"), getCookie("pass"), socket.id, serverId);
+      let rankData2 = ranksList.find(rankData => rankData.id === rank);
+      document.getElementsByClassName("rankTags")[promoting].innerHTML += "<div class='rankTag'>" + rankData2.name + "<div class='x' onclick=\"socket.emit('revokeRank','" + userListAdmin[promoting] + "'," + rankData2.id + "," + "getCookie('name')," + "getCookie('pass')," + "socket.id, serverId); this.parentElement.remove()\">&times;</div></div>";
+    }
+    function promoteMenu(user) {
+      document.getElementById("promoteMenu").style.top = 100 + (74 * user) + "px";
+      document.getElementById("promoteMenu").style.display = "inline-block";
+      hideElement = "promoteMenu";
+      document.getElementById("bodyClick").style.pointerEvents = "auto";
+      socket.emit("queryRanks", socket.id, serverId);
+      promoting = user;
+    }
+    function moreActionsMenu(user) {
+      document.getElementById("moreActionsMenu").style.top = 100 + (74 * user) + "px";
+      document.getElementById("moreActionsMenu").style.display = "inline-block";
+      hideElement = "moreActionsMenu";
+      document.getElementById("bodyClick").style.pointerEvents = "auto";
+      actionsFor = user;
+    }
+    socket.on("accountSyncError", function() {
+      clearCookie("name");
+      clearCookie("pass");
+      window.location.href = "/";
+    });
+    socket.on("allAccounts", function(list) {
+      document.getElementById("adminUserList").innerHTML = "";
+      userListAdmin = list;
+      for (i = 0; i<list.length; i++) {
+        document.getElementById("adminUserList").innerHTML += "<div><img src='/assets/user/" + list[i].name + ".png' />" + list[i].name + "<span onclick=promoteMenu(" + parseInt(i) + ");>+</span><div class='rankTags'></div><img class='moreActions' alt='more actions' src='/assets/more.png' onclick='moreActionsMenu(" + parseInt(i) + ")'/></div>";
+        for (f=0; f<list[i].ranks.length; f++) {
+          document.getElementsByClassName("rankTags")[i].innerHTML += "<div class='rankTag'>" + list[i].ranks[f].name + "<div class='x' onclick=\"socket.emit('revokeRank','" + list[i].name + "'," + list[i].ranks[f].id + "," + "getCookie('name')," + "getCookie('pass')," + "socket.id, serverId); this.parentElement.remove()\">&times;</div></div>";
+          //end cannot be one string because of chrome bugs
+        }
+      }
+    });
+    socket.on("ranks", function(ranks) {
+      ranksList = ranks;
+      document.getElementById("ranksList").innerText = "";
+      for (i=0; i<ranks.length; i++) {
+        document.getElementById("ranksList").innerHTML += "<div class='rank' onclick='showRank(" + i + "," + ranks[i].id + ")'>" + ranks[i].name + "</div>"
+        nextId = ranks[i].id+1;
+      }
+      if (ranks.length > 0) {
+        showRank(ranks.length-1, ranks[ranks.length-1].id);
+      }
+      document.getElementById("promoteMenu").innerText = "";
+      for (i=0; i<ranks.length; i++) {
+        document.getElementById("promoteMenu").innerHTML += "<div class='rank' onclick=promote(" + ranks[i].id + ")>" + ranks[i].name + "</div>";
+      }
+    });
+    showTab(0);
+    function updateAdmin() {
+      socket.emit("queryRanks", socket.id, serverId);
+      socket.emit("queryUserList", socket.id, serverId);
+      socket.emit("queryPerms", getCookie("name"), getCookie("pass"), socket.id, serverId)
+    }
+    socket.on("perms", function(perms) {
+      if (perms.canMute) {
+        document.getElementsByClassName("otherAction")[0].style.display = "block";
+      } else {
+        document.getElementsByClassName("otherAction")[0].style.display = "none";
+      }
+      if (perms.canKick) {
+        document.getElementsByClassName("otherAction")[1].style.display = "block";
+      } else {
+        document.getElementsByClassName("otherAction")[1].style.display = "none";
+      }
+      if (perms.canBan) {
+        document.getElementsByClassName("otherAction")[2].style.display = "block";
+      } else {
+        document.getElementsByClassName("otherAction")[2].style.display = "none";
+      }
     });
   </script>
 </body>

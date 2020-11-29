@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Counting - Game | Math Meyham</title>
+    <link href="../styles/main.css" rel="stylesheet"></link>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div style="font-family: Comfortaa;" id="loader">a</div>
+<main>
+    <canvas id="c" width="2040" height="1080">Your device is not supported</canvas>
+</main>
+<script src="../scripts/engine.js"></script>
+<script>
+// GAME SPECIFIC QUESTION GENERATION //
+//this code is spekal (like Austin)
+var maxQuestions = 20;
+var gen = {
+    number: 0,
+};
+function getQuestion() {
+    if (gen.number === maxQuestions) {
+        giveFeedback();
+    }
+    gen.number++;
+    question = "Which of these numbers is the biggest?";
+    answers = [];
+    for (let i=0; i<5; i++) {
+        let pot = Math.floor(Math.random()*1000);
+        //if duplicate answer or negative number add one
+        while (answers.indexOf(pot) !== -1 || pot < 0) {
+            pot++;
+        }
+        //add option
+        answers.push(pot);
+    }
+    //find correct answer (this line of code is the specalest)
+    correct = answers.indexOf(Math.max(answers[0], answers[1], answers[2], answers[3], answers[4]));
+}
+</script>
+</body>
+</html>

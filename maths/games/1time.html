@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Counting - Game | Math Meyham</title>
+    <link href="../styles/main.css" rel="stylesheet"></link>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div style="font-family: Comfortaa;" id="loader">a</div>
+<main>
+    <canvas id="c" width="2040" height="1080">Your device is not supported</canvas>
+</main>
+<script src="../scripts/engine.js"></script>
+<script>
+// GAME SPECIFIC QUESTION GENERATION //
+maxQuestions = 10;
+var gen = {
+    number: 0,
+};
+var questionFontSize = 38;
+function getQuestion() {
+    if (gen.number === maxQuestions) {
+        giveFeedback();
+    }
+    gen.number++;
+    let hour = Math.floor(Math.random()*11 + 1);
+    let min = Math.floor(Math.random()*2);
+    let minTable = [12, 6];
+    question = "What time is it when the little hand is pointing to " + hour + " and the big hand is pointing to " + minTable[min] + "?";
+    answers = [];
+    let potAnsMin = minTable[min]*5;
+    if (potAnsMin === 60) potAnsMin = "00";
+    let answer = hour + ":" + potAnsMin;
+    for (let i=0; i<5; i++) {
+        //generate number between -3 and +3 of the correct number
+        let potMin = minTable[Math.floor(Math.random()*2)]*5;
+        if (potMin === 60) potMin = "00";
+        let potHour = hour + Math.floor(Math.random()*6)-3;
+        let pot = potHour + ":" + potMin;
+        //if duplicate answer or negative number or correct answer add one
+        while (answers.indexOf(pot) !== -1 || potHour < 1 || pot === answer) {
+            potHour++;
+            pot = potHour + ":" + potMin;
+        }
+        while (answers.indexOf(pot) !== -1 || potHour > 12 || pot === answer) {
+            potHour--;
+            pot = potHour + ":" + potMin;
+        }
+        //add option
+        answers.push(pot);
+    }
+    //set random option to the correct answer
+    correct = Math.floor(Math.random()*4);
+    answers[correct] = answer;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Counting - Game | Math Meyham</title>
+    <link href="../styles/main.css" rel="stylesheet"></link>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div style="font-family: Comfortaa;" id="loader">a</div>
+<main>
+    <canvas id="c" width="2040" height="1080">Your device is not supported</canvas>
+</main>
+<script src="../scripts/engine.js"></script>
+<script>
+// GAME SPECIFIC QUESTION GENERATION //
+var gcd = function(a,b) {return (!b)?a:gcd(b,a%b);};
+var maxQuestions = 10;
+var gen = {
+    number: 0,
+};
+function getQuestion() {
+    if (gen.number === maxQuestions) {
+        giveFeedback();
+    }
+    gen.number++;
+    let num1 = Math.floor(Math.random()*10)+1;
+    let num2 = Math.floor(Math.random()*10)+1;
+    //let answer = Math.floor(Math.random()*10)+1;
+    //let num1 = answer*num2;
+    let rand = Math.floor(Math.random()*5);
+    num1 *= rand;
+    num2 *= rand;
+    topAnswer = num1/ gcd(num1, num2);
+    bottomAnswer = num2/ gcd(num1, num2);
+    question = "Simplify " + num1 + " / " + num2;
+    answers = [];
+    for (let i=0; i<5; i++) {
+        //generate number between -3 and + 10 of the correct number
+        let potTop = topAnswer + Math.floor(Math.random()*10)-3;
+        let potBot = bottomAnswer + Math.floor(Math.random()*10)-3;
+        //if duplicate answer or negative number or correct answer add one
+        while (potTop < 0) potTop++;
+        while (potBot < 0) potBot++;
+        while (answers.indexOf(potTop + "/" + potBot) !== -1 || potTop + "/" + potBot === topAnswer + "/" + bottomAnswer) {
+            if (Math.random() > 0.5) {
+                potTop++;
+            } else {
+                potBot++;
+            }
+        }
+        //add option
+        answers.push(potTop + "/" + potBot);
+    }
+    //set random option to the correct answer
+    correct = Math.floor(Math.random()*4);
+    answers[correct] = topAnswer + "/" + bottomAnswer;
+}
+</script>
+</body>
+</html>

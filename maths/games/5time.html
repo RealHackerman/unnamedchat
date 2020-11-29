@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Counting - Game | Math Meyham</title>
+    <link href="../styles/main.css" rel="stylesheet"></link>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div style="font-family: Comfortaa;" id="loader">a</div>
+<main>
+    <canvas id="c" width="2040" height="1080">Your device is not supported</canvas>
+</main>
+<script src="../scripts/engine.js"></script>
+<script>
+// GAME SPECIFIC QUESTION GENERATION //
+//this code is spekal (like Austin)
+var maxQuestions = 20;
+var gen = {
+    number: 0,
+};
+function getQuestion() {
+    if (gen.number === maxQuestions) {
+        giveFeedback();
+    }
+    gen.number++;
+    answers = [];
+    let timeTable = [12, 24];
+    let hour = Math.floor(Math.random()*24);
+    let min = Math.floor(Math.random()*60);
+    if (min < 10) min = "0" + min;
+    let answer;
+    let convert = 0;
+    if (Math.random() > 0.5) {
+        convert = 1;
+        let time;
+        answer = hour + ":" + min;
+        if (hour >= 12) {
+            if (hour > 12) hour -= 12;
+            time = hour + ":" + min + " PM"
+        } else {
+            if (hour === 0) hour = 12;
+            time = hour + ":" + min + " AM"
+        }
+        question = "What is " + time + " in 24 hour time?";
+    } else {
+        question = "What is " + hour + ":" + min + " in 12 hour time?";
+        if (hour >= 12) {
+            if (hour > 12) hour -= 12;
+            answer = hour + ":" + min + " PM"
+        } else {
+            if (hour === 0) hour = 12;
+            answer = hour + ":" + min + " AM"
+        }
+    }
+    for (let i=0; i<5; i++) {
+        let pot = Math.floor(Math.random()*24);
+        let potMin = min;
+        //if duplicate answer or negative number add one
+        while (answers.indexOf(pot + ":" + min) !== -1 || pot + ":" + min === answer) {
+            pot++;
+        }
+        while (answers.indexOf(pot + ":" + potMin) !== -1 && min < 59) {
+            potMin++;
+        }
+        while (answers.indexOf(pot + ":" + potMin) !== -1 && min > 0) {
+            potMin--;
+        }
+        //add option
+        if (!convert) {
+            if (pot >= 12) {
+                if (pot > 12) pot -= 12;
+                answers.push(pot + ":" + potMin + " PM");
+            } else {
+                if (pot === 0) pot = 12;
+                answers.push(pot + ":" + potMin + " AM");
+            }
+        } else {
+            answers.push(pot + ":" + potMin);
+        }
+    }
+    //find correct answer (this line of code is the specalest)
+    correct = Math.floor(Math.random()*5);
+    answers[correct] = answer;
+}
+</script>
+</body>
+</html>

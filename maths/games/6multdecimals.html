@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Counting - Game | Math Meyham</title>
+    <link href="../styles/main.css" rel="stylesheet"></link>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div style="font-family: Comfortaa;" id="loader">a</div>
+<main>
+    <canvas id="c" width="2040" height="1080">Your device is not supported</canvas>
+</main>
+<script src="../scripts/engine.js"></script>
+<script>
+// GAME SPECIFIC QUESTION GENERATION //
+var maxQuestions = 10;
+var gen = {
+    number: 0,
+};
+function getQuestion() {
+    if (gen.number === maxQuestions) {
+        giveFeedback();
+    }
+    gen.number++;
+    let num1 = Math.floor(Math.random()*10000)/ 10000;
+    let num2 = Math.floor(Math.random()*10000)/ 10000;
+    question = "What is " + num1 + " x " + num2 + "?";
+    let answer = num1*num2;
+    answer = Math.round(answer*100)/100
+    answers = [];
+    for (let i=0; i<5; i++) {
+        //generate number between -10 and + 10 of the correct number
+        let pot = answer + Math.floor(Math.random()*100)/ 100;
+        //if duplicate answer or negative number or correct answer add one
+        while (answers.indexOf(pot) !== -1 || pot < 0 || pot === answer) {
+            pot++;
+        }
+        pot += "";
+        pot = pot.slice(0, 6);
+        //add option
+        answers.push(pot);
+    }
+    //set random option to the correct answer
+    correct = Math.floor(Math.random()*4);
+    answer += "";
+    answer = answer.slice(0, 6);
+    answers[correct] = answer;
+}
+</script>
+</body>
+</html>

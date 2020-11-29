@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QSKP9BY28S"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-QSKP9BY28S');
+  </script>
+    <title>Unnamed Chat - The Superior Chatroom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">    
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="Description" content="Unnamed Chat. Communicate with all your friends with ease on Unnamed Chat, the superior chat service." />
+    <link rel="icon" href="/assets/logo.png" type="image/x-icon"/>
+    <style>
+        html {
+            height: 100%;
+        }
+        body {
+            margin: 0px;
+            height: 100%;
+            color: white;
+            font-family: "Roboto", sans-serif;
+            background-color: #3c3c3c;
+        }
+        #title {
+            text-align: center;
+            font-size: 45px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #3c3c3c;
+            margin-bottom: 15px;
+        }
+        #p {
+            font-size: 18px;
+            max-width: 1000px;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-family: "Open Sans", sans-serif;
+            margin-bottom: 20px;
+        }
+        #p > div {
+            margin-top: 10px;
+        }
+        main {
+            padding: 30px;
+            background: linear-gradient(135deg, #3c3c3c, #fda50f);
+        }
+        #notSignedIn, #signedIn {
+            text-align: center;
+        }
+        .bigBtn {
+            width: 100px;
+            font-size: 20px;
+            background-color: #3c3c3c;
+            display: inline-block;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 0px 10px 10px 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 0 #3c3c3c;
+            text-decoration: none;
+            text-align: center;
+        }
+        .bigBtn:hover {
+            box-shadow: 0 0 5px #3c3c3c;
+        }
+        section {
+            min-height: 240px;
+            padding: 30px;
+            padding-bottom: 0px;
+        }
+        section > img {
+            width: 140px;
+            height: 140px;
+            padding: 50px;
+            background-color: #2f2f2f;
+            border-radius: 15px;
+            display: inline-block;
+            float: left;
+            margin-right: 30px;
+        }
+        .sectionTitle {
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .sectionP {
+            font-family: "Open Sans", sans-serif;
+            font-size: 16px;
+        }
+        a {
+            color: white !important;
+        }
+        .orange {
+            background-color: #fda50f;
+        }
+        #finalWrap {
+            text-align: center;
+            margin-top: 50px;
+        }
+        #finalWrap > .bigBtn:hover {
+            box-shadow: 0 0 5px #fda50f;
+        }
+        footer {
+            padding: 30px;
+            background-color: #232323;
+        }
+        footer a {
+            text-decoration: none;
+        }
+        footer a:hover{
+            text-decoration: underline;
+        }
+        footer > div {
+            margin-bottom: 10px;
+        }
+        #footerLogo {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            vertical-align: middle;
+            margin-right: 10px;
+            float: left;
+        }
+        #signedIn {
+          display: none;
+        }
+
+        @media all and (max-width: 650px) {
+          section > img {
+            display: none;
+          }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div id="title">Unnamed Chat, The Superior Chatroom</div>
+        <div id="p">
+            <div>Are you tired of forking over your information to big companies that don't even care about you?</div>
+            <div>Are you tired of toxic developers that don't listen to what you want?</div>
+            <div>Are you tired of greedy companies selling overpriced cash-grabs for useless features?</div>
+            <div style="font-weight: bold;">Join Unnamed Chat, the superior chatroom.</div>
+        </div>
+        <div id="notSignedIn">
+            <a href="/register" class="bigBtn">Register</a>
+            <a href="/login" class="bigBtn">Login</a>
+        </div>
+        <div id="signedIn">
+            <a href="/app" class="bigBtn" style="width: 200px">Open Unnamed Chat</a>
+        </div>
+    </main>
+    <section>
+        <img src="/assets/homepage/heart.png" alt="Caring Community" />
+        <div class="sectionTitle">Caring Community</div>
+        <div class="sectionP">At Unnamed Chat, we have a caring, welcoming community. Whether you have been here since the alpha, or you are new, the whole community will be happy to have you around. You can also communicate directly with the developers, enabling the community to recommend new features.</div>
+    </section>
+    <section>
+        <img src="/assets/homepage/lock.png" alt="Security" />
+        <div class="sectionTitle">Privacy &amp; Security</div>
+        <div class="sectionP">At Unnamed Chat, we care deeply about the privacy and security of our users. That's why we are completely transparent with our <a href="/privacy">Privacy Policy</a> and <a href="/tos">Terms of Service</a>. We also implement some of the most advanced encryption and hashing technologies to ensure no one can see your sensitive information. <b>Not even admins.</b></div>
+    </section>
+    <section>
+        <img src="/assets/homepage/phone.png" alt="Communicate with your Friends" />
+        <div class="sectionTitle">Communicate with your Friends</div>
+        <div class="sectionP">Unnamed Chat allows you to communicate with your friends and organise your discussions in many ways. First, create a server for a topic you enjoy. Next, invite your friends. Then, chat about that topic via voice call or text chat. Servers help keep discussions organised and relevant to you.</div>
+    </section>
+    <section style="background-color: #2f2f2f; margin-top: 30px;">
+        <div class="sectionTitle" style="text-align: center;">Join your friends on Unnamed Chat today</div>
+        <div id="finalWrap">
+            <a href="/register" class="bigBtn orange">Register</a>
+            <a href="/login" class="bigBtn orange">Login</a>
+        </div>
+    </section>
+    <footer>
+        <div style="margin-bottom: 20px">
+            <img src="/assets/logo.png" id="footerLogo" />
+            <div style="font-size: 19px; font-weight: bold;">Unnamed Chat</div>
+            <div>The superior chatroom</div>
+        </div>
+        <div>
+            <a href="mailto:unnamedchat@gmail.com">Email</a>
+        </div>
+        <div style="margin-bottom: 0px">
+            <a href="/tos">Terms of Service</a>
+            &middot
+            <a href="/privacy">Privacy</a>
+        </div>
+    </footer>
+  <script>
+    if (location.protocol !== "https:") {
+      location.protocol = "https:";
+    }
+    function getCookie(name) {
+      var value = "; " + document.cookie;
+      var parts = value.split("; " + name + "=");
+      if (parts.length == 2) return parts.pop().split(";").shift();
+    }
+    if (getCookie("name") && getCookie("pass")) {
+      document.getElementById("signedIn").style.display = "block";
+      document.getElementById("notSignedIn").style.display = "none";
+    }
+  </script>
+</body>
+</html>

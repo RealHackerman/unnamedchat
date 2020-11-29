@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QSKP9BY28S"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-QSKP9BY28S');
+  </script>
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+	<title>Your Data | Unnamed Chat</title>
+	<style>
+		body {
+			font-size: 18px;
+      background: linear-gradient(135deg, #3c3c3c, #fda50f);
+			color: white;
+		}
+
+		body,
+		input,
+		button {
+			font-family: Roboto, sans-serif;
+		}
+
+		body,
+		html {
+			margin: 0px;
+			height: 100%;
+		}
+
+		#main {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 60%;
+			min-width: 300px;
+			max-width: 500px;
+			padding: 30px;
+			transform: translate(-50%, -50%);
+			background-color: #3c3c3c;
+			border-radius: 5px;
+			box-shadow: 0 0 3px black;
+		}
+
+		.heading {
+			color: white;
+			font-size: 25px;
+			text-align: center;
+			margin-bottom: 5px;
+			font-family: "Roboto", sans-serif;
+			font-weight: 700;
+		}
+
+		.button {
+			color: white;
+			background-color: #fda50f;
+			border-radius: 5px;
+			padding: 10px;
+			cursor: pointer;
+			display: inline-block;
+		}
+
+		.wrap {
+			text-align: center;
+		}
+
+    a {
+      text-decoration: none !important;
+      color: #fda50f !important;
+    }
+
+    .smallHeading {
+			font-size: 18px;
+			margin-bottom: 30px;
+		}
+
+    #timeout, #res {
+      color: red;
+      font-size: 14px;
+    }
+	</style>
+	<script src="/socket.io/socket.io.js"></script>
+  <link rel="icon" href="/assets/logo.png" type="image/x-icon"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="Description" content="Unnamed Chat, the superior chat website" />
+</head>
+<body>
+  <section id="main">
+		<div class="heading">Request Recorded Data</div>
+    <div class="smallHeading">In accordance with our <a href="/privacy">Privacy Policy</a>, you can request to view all of your account data. <br /><br />
+    Please note:
+    <ul>
+      <li>We will send the data via email to the email address currently associated with your account (if you change your email after you request the data, it won't be redirected to the new email address).</li>
+      <li>The request can take up to 30 days to process.</li>
+      <li>You must verify your email to request your data.</li>
+    </ul>
+    </div>
+    <div class="wrap">
+      <span class="button" onclick="request()">Request My Data</span>
+    </div>
+    <div id="timeout"></div>
+    <div id="res"></div>
+  </section>
+  <script>
+    var socket = io();
+    function getCookie(name) {
+      var value = "; " + document.cookie;
+      var parts = value.split("; " + name + "=");
+      if (parts.length == 2) return parts.pop().split(";").shift();
+    }
+    if (!getCookie("name") || !getCookie("pass")) {
+      window.location.href = "/login?redirectTo=yourdata";
+    }
+    timeout = 0;
+    function request() {
+      if (new Date().getTime() > timeout) {
+        //prevent spam
+        timeout = new Date().getTime() + 5000;
+        socket.emit("getData", getCookie("name"), getCookie("pass"), socket.id);
+      } else {
+        document.getElementById("timeout").style.marginTop = "20px";
+        document.getElementById("timeout").innerText = "Hey, you are clicking too fast! We get it, you want your data, but clicking the button multiple times won't get it to you any faster.";
+      }
+    }
+    socket.on("getDataRes", function(status, name, email) {
+      document.getElementById("res").style.marginTop = "20px";
+      document.getElementById("res").style.color = "red";
+      if (status === 1) {
+        document.getElementById("res").style.color = "white";
+        document.getElementById("res").innerText = "The server successfully processed your request, a copy of the data associated with the account \"" + name + "\" will be emailed to " + email + " within 30 days.";
+      } else if (status === 2) {
+        document.getElementById("res").innerText = "You must verify your email to request your data";
+      } else {
+        document.getElementById("res").innerText = "The server encountered an error when processing your request, try again.";
+      }
+    });
+  </script>
+</body>
+</html>

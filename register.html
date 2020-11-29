@@ -2,6 +2,15 @@
 <html>
 
 <head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QSKP9BY28S"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-QSKP9BY28S');
+  </script>
 	<link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
 	<title>Register | Unnamed Chat</title>
 	<style>
@@ -23,7 +32,7 @@
 			height: 100%;
 		}
 
-		#login input {
+		#email, #name, #pass {
 			outline: 0px;
 			border-radius: 5px;
 			width: calc(100% - 30px);
@@ -107,6 +116,39 @@
       margin-left: 5px;
       margin-top: 5px;
     }
+
+    #checkLabel:after {
+      content: "\2713\0020";
+      border-radius: 4px;
+      background-color: #2f2f2f;
+      color: #2f2f2f;
+      width: 15px;
+      height: 15px;
+      padding-left: 5px;
+      padding-bottom: 5px;
+      display: inline-block;
+      position: relative;
+      transition: all 0.5s;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #checkbox:checked + #checkLabel:after {
+      background-color: #fda50f;
+      color: white;
+    }
+    
+    #checkbox {
+      display: none;
+			background-color: #2f2f2f;
+			border: 2px solid #232323;
+    }
+
+    #checkError {
+      color: red;
+      font-style: italic;
+      display: none;
+    }
 	</style>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="Description" content="Unnamed Chat, the superior chat website" />
@@ -125,9 +167,14 @@
     <input id="name"/>
     <span class="label" id="pLabel">PASSWORD</span>
     <input type="password" id="pass" />
+    <div id="checkError" class="noAcc">You must agree to the Terms of Service and Privacy Policy to use Unnamed Chat</div>
+    <div class="noAcc" style="margin-bottom: 10px">
+      <input type="checkbox" id="checkbox" />
+      <label id="checkLabel" for="checkbox"></label>
+      I agree to the <a href="/tos">Terms of Service</a> and <a href="/privacy">Privacy Policy</a></div>
     <span class="noAcc">Already have an account? <a href="/">Login</a></span>
     <div class="wrap">
-    <span class="button" id="loginBtn">Register</span>
+      <span class="button" id="loginBtn">Register</span>
     </div>
   </section>
   <script>
@@ -170,6 +217,8 @@
         registerError("name", "Your name must not contain special characters");
       } else if (!emailRegex.test(email)) {
         registerError("email", "Your email is invalid");
+      } else if (!document.getElementById("checkbox").checked) {
+        registerError("check");
       } else {
         socket.emit("register", name, pass, email, socket.id);
       }
@@ -181,6 +230,7 @@
       document.getElementById("name").style.borderColor = "#232323";
       document.getElementById("pass").style.borderColor = "#232323";
       document.getElementById("email").style.borderColor = "#232323";
+      document.getElementById("checkError").style.display = "none";
       if (type === "name") {
         document.getElementById("nLabel").innerHTML = "USERNAME - <i>" + msg + "</i>"
         document.getElementById("nLabel").style.color = "red";
@@ -193,6 +243,8 @@
         document.getElementById("eLabel").innerHTML = "EMAIL - <i>" + msg + "</i>"
         document.getElementById("eLabel").style.color = "red";
         document.getElementById("email").style.borderColor = "red";
+      } else if (type === "check") {
+        document.getElementById("checkError").style.display = "block";
       }
     };
     socket.on("registerSuccess", function() {

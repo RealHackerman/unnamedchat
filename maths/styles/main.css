@@ -1,0 +1,26 @@
+html {
+    height: 100%;
+}
+body {
+    font-size: 14px;
+    font-family: sans-serif;
+    margin: 20px;
+    height: calc(100% - 40px);
+}
+main {
+    width: calc(100% - 44px);
+    height: calc(100% - 44px);
+    padding: 20px;
+    border: 2px solid #383c4a;
+    background-color: #eee;
+    display: inline-block;
+    border-radius: 15px;
+    overflow: auto;
+}
+#c {
+    width: 100%;
+    height: auto;
+    background-color: white;
+    border-radius: 15px;
+    text-align: center;
+}

@@ -57,7 +57,13 @@ app.get("*", function(req, res) {
 });
 */
 app.get("/", function(req, res) {
-  res.sendFile(__dirname + "/login.html");
+  res.sendFile(__dirname + "/home.html");
+});
+app.get("/maths", function(req, res) {
+  res.sendFile(__dirname + "/maths/index.html");
+});
+app.get("/google6f0c88eff0686282.html", function(req, res) {
+  res.sendFile(__dirname + "/google6f0c88eff0686282.html");
 });
 app.get("/invite/*", async function(req, res) {
   req.originalUrl = req.originalUrl.slice(8);
@@ -65,7 +71,7 @@ app.get("/invite/*", async function(req, res) {
   if (valid[0]) {
     if (valid[0].expiry < new Date().getTime()) {
       db.collection("invites").remove(
-        {key: link}
+        {key: req.originalUrl}
       );
       res.sendFile(__dirname + "/inviteExpired.html");
       return;
@@ -165,14 +171,51 @@ async function validateRequest(name, pass, socket, server, requiredPerms, aboveR
   if (!io.sockets.connected[socket]) return false;
   acc = await getUser(name);
   //validation
+  if (!acc) {
+    io.sockets.connected[socket].emit("accountSyncError");
+    return false;
+  }
+  if (acc.susp > new Date().getTime() || acc.susp === "Infinity") {
+    io.sockets.connected[socket].emit("suspError", acc.susp);
+    return null;
+  }
+  let userFailedLogin = 0;
+  if (!acc.loginAttempts) acc.loginAttempts = [];
+  for (i=0; i<acc.loginAttempts.length; i++) {
+    if (acc.loginAttempts[i] > new Date().getTime()) {
+      userFailedLogin++;
+    } else {
+      acc.loginAttempts.splice(i, 1);
+    }
+  }
+  db.collection("accounts").updateOne(   
+    {"name": name},
+    {$set: {loginAttempts: acc.loginAttempts}}
+  );
+  if (userFailedLogin >= 3) {
+    io.sockets.connected[socket].emit("timeoutError");
+    log.push([1001, new Date().getTime(), "validateRequest", {user: name}]);
+    console.log(log[log.length-1]);
+    return null;
+  }
   if (!acc || !bcrypt.compareSync(pass, acc.pass)) {
     io.sockets.connected[socket].emit("accountSyncError");
     log.push([1000, new Date().getTime(), "validateRequest", {user: name}]);
     console.log(log[log.length-1]);
+    acc.loginAttempts.push(new Date().getTime() + 60000); // 1 minute time out
+    db.collection("accounts").updateOne(   
+      {"name": name},
+      {$set: {loginAttempts: acc.loginAttempts}}
+    );
     return false;
   }
   if ((!server && server !== 0) || !requiredPerms) return acc;
   ranksLocal = await db.collection("servers").find({"id": server}, {projection:{_id: 0}}).toArray();
+  if (!ranksLocal[0]) {
+    log.push([3001, new Date().getTime(), "validateRequest", {server: server}]);
+    console.log(log[log.length-1]);
+    return false;
+  }
   ranksLocal = ranksLocal[0].ranks;
   for (i=0; i<requiredPerms.length; i++) {
     let res = await hasPerm(acc, ranksLocal, server, requiredPerms[i]);
@@ -212,7 +255,7 @@ io.on("connection", function(socket) {
   socket.on("msg", async function(msg, name, pass, socket, time, server) {
     acc = await validateRequest(name, pass, socket);
     if (!acc) return;
-    if (acc && acc.mute < new Date().getTime() && acc.verify) {
+    if (acc.server[server] && acc.server[server].mute < new Date().getTime() && acc.verify) {
       io.to("<room>" + server).emit("msg", name, escapeHtml(msg), time);
       db.collection("servers").updateOne(   
         {"id": parseInt(server)},
@@ -227,7 +270,7 @@ io.on("connection", function(socket) {
       io.sockets.connected[socket].emit("loginSuccess");
       console.log("Valid login attempt: " + name + " password: " + pass + " from: " + socket);
     } else {
-      io.sockets.connected[socket].emit("loginError", "pass", "Your password is incorrect");
+      if (acc === false) io.sockets.connected[socket].emit("loginError", "pass", "Your password is incorrect");
     }
   });
   //register
@@ -255,7 +298,6 @@ io.on("connection", function(socket) {
               name: name,
               pass: hash,
               mute: 0,
-              ranks: [],
               email: email,
               mailLists: [true, true],
               verify: false,
@@ -263,7 +305,8 @@ io.on("connection", function(socket) {
               //expires in 24 hours
               verifyExpiry: new Date().getTime() + 86400000,
               modHistory: [],
-              server: {}
+              server: {},
+              banned: {}
             });
           });
         });
@@ -281,8 +324,12 @@ io.on("connection", function(socket) {
           subject: "Verify your Email on Unnamed Chat",
           html: subVerEmail
         }, function(err, info) {
-          if (err) console.log(err);
-          console.log("Email sent: " + info.response);
+          try {
+            if (err) console.log(err);
+            console.log("Email sent: " + info.response);
+          } catch (e) {
+            console.log("error getting response for register email");
+          }
         });
         //google can hide repetitive content, id fixes this
         emailId++;
@@ -313,7 +360,15 @@ io.on("connection", function(socket) {
     acc.ranks.forEach(r => {if (r.id+1 > idCount) idCount = r.id+1});
     db.collection("servers").updateOne(
       {"id" : parseInt(server)},
-      {$push: {ranks: {name: "New Rank", id: idCount, level: idCount, color: "#ffffff"}}}
+      {$push: {ranks: {
+        name: "New Rank", 
+        id: idCount, 
+        level: idCount, 
+        color: "#ffffff",
+        canMute: false,
+        canEditRanks: false,
+        canBan: false,
+      }}}
     );
   });
   socket.on("editRank", async function(name, pass, socket, server, rankId, rankData) {
@@ -327,7 +382,8 @@ io.on("connection", function(socket) {
       level: oldData.level,
       color: rankData.color,
       canEditRanks: rankData.canEditRanks,
-      canMute: rankData.canMute
+      canMute: rankData.canMute,
+      canBan: rankData.canBan
     }
     db.collection("servers").updateOne(
       {id: parseInt(server), "ranks.id": oldData.id},
@@ -520,13 +576,17 @@ io.on("connection", function(socket) {
       io.sockets.connected[socket].emit("linkResponse", false, null);
       return;
     }
-    let server = parseInt(link.split("-")[0]);
+    let server = link.split("-")[0];
+    if (acc.banned[server] > new Date().getTime()) {
+      io.sockets.connected[socket].emit("linkResponse", false, null);
+      return;
+    }
     if (Object.keys(acc.server).indexOf(server) !== -1) {
       io.sockets.connected[socket].emit("linkResponse", true, null);
       return;
     }
     try {
-    io.sockets.connected[socket].emit("linkResponse", true, server);
+    io.sockets.connected[socket].emit("linkResponse", true, parseInt(server));
     } catch (e) {/*user redirected already*/}
     db.collection("accounts").updateOne(
       {name: name},
@@ -557,6 +617,22 @@ io.on("connection", function(socket) {
       {projection: {_id: 0, msgLog: 1, name: 1, id: 1}}
     ).toArray();
     io.sockets.connected[socket].emit("serverData", serverRes[0].msgLog, acc.server[server].mute, serverRes[0].name, serverRes[0].id);
+  });
+  socket.on("ban", async function(user, time, duration, auth, authPass, socket, server, reason) {
+    acc = await validateRequest(auth, authPass, socket, server, ["canBan"], user);
+    if (!acc) return;
+    io.to("<room>" + server).emit("banMsg", user, auth, duration, reason, time);
+    db.collection("accounts").updateOne(
+      {name: user},
+      {
+        $set: {["banned." + server]: time},
+        $unset: {["server." + server]: ""},
+      }
+    );
+    db.collection("servers").updateOne(
+      {"id" : parseInt(server)},
+      {$push: {msgLog: ["ban", user, auth, duration, reason, time]}}
+    );
   });
   socket.on("createServer", async function (name, pass, socket, serverName, icon) {
     acc = await validateRequest(name, pass, socket);
@@ -591,6 +667,76 @@ io.on("connection", function(socket) {
     db.collection("id").updateOne(
       {main: true},
       {$set: {servers: nextServerId}}
+    );
+  });
+  socket.on("queryPerms", async function(name, pass, socket, server) {
+    acc = await validateRequest(name, pass, socket);
+    if (!acc) return;
+    if (acc.server[server].owner) {
+      res = {
+        canMute: true,
+        canKick: true,
+        canBan: true,
+      }
+      io.sockets.connected[socket].emit("perms", res);
+      return;
+    }
+    let ranksLocal = await db.collection("servers").find({"id": server}, {projection:{_id: 0}}).toArray();
+    ranksLocal = ranksLocal[0].ranks;
+    res = {
+      canMute: await hasPerm(acc, ranksLocal, server, "canMute"),
+      canKick: await hasPerm(acc, ranksLocal, server, "canKick"),
+      canBan: await hasPerm(acc, ranksLocal, server, "canBan"),
+    }
+    io.sockets.connected[socket].emit("perms", res);
+  });
+  socket.on("getData", async function(name, pass, socket) {
+    acc = await validateRequest(name, pass, socket);
+    if (!acc) {
+      io.sockets.connected[socket].emit("getDataRes", 3);
+      return;
+    }
+    if (!acc.verify) {
+      io.sockets.connected[socket].emit("getDataRes", 2);
+      return;
+    }
+    io.sockets.connected[socket].emit("getDataRes", 1, acc.name, acc.email);
+    //send data
+    subDataEmail = dataEmail;
+    subDataEmail = subDataEmail.replace(/\$NAME/g, acc.name);
+    subDataEmail = subDataEmail.replace(/\$EMAIL/g, emailId);
+    subDataEmail = subDataEmail.replace(/\$DATA/g, JSON.stringify(acc));
+    nmclient.sendMail({
+      from: process.env.user,
+      to: acc.email,
+      subject: "Unnamed Chat Data",
+      html: subDataEmail,
+    }, function(err, info) {
+      if (err) console.log(err);
+      console.log("Success: data sent to " + info.accepted[0] + " with response " + info.response);
+    });
+    emailId++;
+    fs.writeFile(__dirname + "/data/emailId.txt", emailId, function(err) {
+        if (err) throw err;
+    });
+  });
+  socket.on("sendCallOffer", async function(name, pass, socket, server, offer) {
+    let acc = await validateRequest(name, pass, socket, server, []);
+    if (!acc) return;
+    io.to("<room>" + server).emit("callOffer", socket, offer);
+  });
+  socket.on("sendCallAnswer", async function(name, pass, socket, server, offerSocket, answer) {
+    let acc = await validateRequest(name, pass, socket, server, []);
+    if (!acc) return;
+    console.log(answer);
+    io.sockets.connected[offerSocket].emit("callAnswer", answer);
+  });
+  socket.on("leaveServer", async function(name, pass, socket, server) {
+    let acc = validateRequest(name, pass, socket);
+    if (!acc) return;
+    db.collection("accounts").updateOne(
+      {name: name},
+      {$set: {["server." + server + ".in"]: false}}
     );
   });
 });
@@ -634,26 +780,6 @@ fs.readFile(__dirname + "/assets/logo.png", function(err, data) {
   if (err) throw err;
   logo = data;
 });
-//load ranks into mem
-/*
-fs.readFile(__dirname + "/data/ranks", function(err, data) {
-  if (err) {
-    ranks = [];
-  } else {
-    ranks = JSON.parse(data.toString());
-    //get rank id count
-    ranks.forEach(r => {if (r.id+1 > idCount) idCount = r.id+1});
-  }
-});
-*/
-//load chat into mem
-fs.readFile(__dirname + "/data/msglog", function(err, data) {
-  if (err) {
-    msgLog = [];
-  } else {
-    msgLog = JSON.parse(data.toString());
-  }
-});
 //emailId
 fs.readFile(__dirname + "/data/emailId.txt", function(err, data) {
   if (err) throw err
@@ -666,16 +792,24 @@ fs.readFile(__dirname + "/assets/emailTemplates/verify.html", function(err, data
 });
 fs.readFile(__dirname + "/assets/emailTemplates/news.html", function(err, data) {
   if (err) throw err
-  newsEmail = data.toString().split("<script>")[0];
+  newsEmail = data.toString().split("<script>")[0] + "</body></html>";
 });
 fs.readFile(__dirname + "/assets/emailTemplates/passwordReset.html", function(err, data) {
   if (err) throw err
-  passwordResetTemp = data.toString().split("<script>")[0];
+  passwordResetTemp = data.toString().split("<script>")[0] + "</body></html>";
+});
+fs.readFile(__dirname + "/assets/emailTemplates/data.html", function(err, data) {
+  if (err) throw err
+  dataEmail = data.toString().split("<script>")[0] + "</body></html>";
+});
+fs.readFile(__dirname + "/assets/emailTemplates/marketing.html", function(err, data) {
+  if (err) throw err
+  marketEmail = data.toString().split("<script>")[0] + "</body></html>";
 });
 //  DEV  //
 async function sendNewsletter() {
-  let emails = await db.collection("accounts").find({}, {projection:{_id: 0}}).toArray();
-  //let emails = await db.collection("accounts").find({"name": "admin"}, {projection:{_id: 0}}).toArray();
+  //let emails = await db.collection("accounts").find({}, {projection:{_id: 0}}).toArray();
+  let emails = await db.collection("accounts").find({"name": "Friend"}, {projection:{_id: 0}}).toArray();
   for (i=0; i<emails.length; i++) {
     if (!emails[i].mailLists[0]) continue;
     subNewsEmail = newsEmail;
@@ -686,11 +820,36 @@ async function sendNewsletter() {
       to: emails[i].email,
       subject: "Unnamed Chat Newsletter",
       html: subNewsEmail,
+      text: "Hi, " + emails[i].name + " visit this link to view the latest Unnamed Chat newsletter: https://unnamedchat.repl.co/assets/emailTemplates/news?name=" + emails[i].name + "&id=" + emailId
     }, function(err, info) {
       if (err) console.log(err);
       console.log("Success: sent to " + info.accepted[0] + " with response " + info.response);
     });
     console.log("Newsletter attempted to send to " + emails[i].name);
+    emailId++;
+    fs.writeFile(__dirname + "/data/emailId.txt", emailId, function(err) {
+        if (err) throw err;
+    });
+  }
+}
+async function sendMarketing() {
+  let emails = await db.collection("accounts").find({}, {projection:{_id: 0}}).toArray();
+  //let emails = await db.collection("accounts").find({"name": "admin"}, {projection:{_id: 0}}).toArray();
+  for (i=0; i<emails.length; i++) {
+    if (!emails[i].mailLists[1]) continue;
+    subMarketEmail = marketEmail;
+    subMarketEmail = subMarketEmail.replace(/\$NAME/g, emails[i].name);
+    subMarketEmail = subMarketEmail.replace(/\$EMAIL/g, emailId);
+    nmclient.sendMail({
+      from: process.env.user,
+      to: emails[i].email,
+      subject: "Unnamed Chat PREMIUM",
+      html: subMarketEmail,
+    }, function(err, info) {
+      if (err) console.log(err);
+      console.log("Success: sent to " + info.accepted[0] + " with response " + info.response);
+    });
+    console.log("Marketing attempted to send to " + emails[i].name);
     emailId++;
     fs.writeFile(__dirname + "/data/emailId.txt", emailId, function(err) {
         if (err) throw err;

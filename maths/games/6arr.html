@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Counting - Game | Math Meyham</title>
+    <link href="../styles/main.css" rel="stylesheet"></link>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div style="font-family: Comfortaa;" id="loader">a</div>
+<main>
+    <canvas id="c" width="2040" height="1080">Your device is not supported</canvas>
+</main>
+<script src="../scripts/engine.js"></script>
+<script>
+// GAME SPECIFIC QUESTION GENERATION //
+var maxQuestions = 10;
+var gen = {
+    number: 0,
+};
+function getQuestion() {
+    if (gen.number === maxQuestions) {
+        giveFeedback();
+    }
+    gen.number++;
+    let type = Math.floor(Math.random()*4);
+    let answer;
+    if (type === 0){
+        let num1 = Math.floor(Math.random()*1000);
+        let num2 = Math.floor(Math.random()*1000);
+        answer = num1 + num2;
+        question = "What is " + num1 + " + " + num2 + "?";
+    } else if (type === 1) {
+        let num1 = Math.floor(Math.random()*1000);
+        let num2 = Math.floor(Math.random()*1000);
+        answer = num1 - num2;
+        question = "What is " + num1 + " - " + num2 + "?";
+    } else if (type === 3) {
+        let num1 = Math.floor(Math.random()*100);
+        let num2 = Math.floor(Math.random()*100);
+        answer = num1 * num2;
+        question = "What is " + num1 + " * " + num2 + "?";
+    } else if (type === 4) {
+        let num2 = Math.floor(Math.random()*100);
+        answer = Math.floor(Math.random()*100);
+        let num1 = num2*answer;
+        question = "What is " + num1 + " / " + num2 + "?";
+    }
+    answers = [];
+    for (let i=0; i<5; i++) {
+        //generate number between -50 and +50 the correct number
+        let pot = answer + Math.floor(Math.random()*100)-50;
+        //if duplicate answer or negative number or correct answer add one
+        while (answers.indexOf(pot) !== -1 || pot === answer) {
+            pot++;
+        }
+        //add option
+        answers.push(pot);
+    }
+    //set random option to the correct answer
+    correct = Math.floor(Math.random()*4);
+    answers[correct] = answer;
+}
+</script>
+</body>
+</html>

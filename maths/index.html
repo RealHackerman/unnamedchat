@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Math Mayhem</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html {
+            height: 100%;
+        }
+        body {
+            font-size: 14px;
+            font-family: Helvetica;
+            font-family: Open Sans, Roboto, sans-serif;
+            margin: 20px;
+            height: calc(100% - 40px);
+        }
+        #gameList {
+            background-color: #4b5162;
+            display: inline-block; 
+            width: calc(100% - 400px);  
+            height: calc(100% - 80px);
+            position: absolute;
+            left: 340px;
+            padding: 0px 20px;
+            border-radius: 15px;
+            overflow: auto;
+            border-top: 20px solid #4b5162; /* stops boxes touching edge when scrolling */
+            border-bottom: 20px solid #4b5162;
+        }
+        #gameList > div {
+            background-color: white;
+            border-radius: 20px;
+            height: 160px; 
+            width: calc(100% - 30px);
+            padding: 15px;
+            position: relative;
+        }
+        #gameList > div:not(:last-child) {
+            margin-bottom: 20px;
+        }
+        #contents {
+            padding: 20px;
+            border: 2px solid #383c4a;
+            width: 260px;
+            height: calc(100% - 44px);
+            display: inline-block;
+            border-radius: 15px;
+            background-color: #eee;
+            overflow: auto;
+        }
+        #contents > div, h4 {
+            border-radius: 15px;
+            border: 2px solid #383c4a;
+            padding: 10px;
+            margin-bottom: 15px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        #contents > div:hover, #contents > h4 {
+            background-color: #4b5162;
+            color: white;
+        }
+        h4 {
+            font-family: Roboto, Open Sans, sans-serif;
+            text-align: center;
+            margin-top: 0px;
+            cursor: default;
+            font-size: 17px;
+        }
+        .gameTitle {
+            font-size: 30px;
+            text-align: center;
+            margin-bottom: 10px;
+            font-family: Roboto, Open Sans, sans-serif;
+        }
+        .gameDesc {
+            font-size: 18px;
+        }
+        .button {
+            background-color: #383c4a;
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer; 
+            font-size: 15px; 
+            font-family: Roboto, sans-serif;        
+        }
+        #gameList .button {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+        }
+        *::-webkit-scrollbar {
+            width: 10px;
+        }
+        *::-webkit-scrollbar-button {
+            display: none;
+        }
+        *::-webkit-scrollbar-thumb {
+            background-color: #999;
+            border-radius: 16px;
+        }
+        #gameList > .yrLevelTitle {
+            height: initial;
+            text-align: center;
+            font-size: 30px;
+            font-family: Roboto, Open Sans, sans-serif;
+        }
+        @media (max-width: 900px) {
+          #contents {
+            display: none;
+          }
+          #gameList {
+              left: 20px;
+              right: 20px;
+              width: initial;
+          }
+        }
+    </style>
+</head>
+<body>
+<div id="contents">
+    <h4>Reception</h4>
+    <div>Counting</div>
+    <div>Number Names</div>
+    <div>Addition up to 20</div>
+    <div>Comparing Numbers</div>
+    <div>Naming Shapes</div>
+    
+    <h4>Grade 1</h4>
+    <div>Counting to 100</div>
+    <div>Skip Counting (2, 5, 10)</div>
+    <div>Comparing Numbers</div>
+    <div>Basic Addition and Subtraction</div>
+    <div>Tell The Time</div>
+    
+    <h4>Grade 2</h4>
+    <div>Skip Counting (2, 3, 5, 10)</div>
+    <div>Comparing Numbers to 1000</div>
+    <div>Intro To Multiplication</div>
+    <div>Intro To Division</div>
+    <div>Basic Patterns</div>
+    
+    <h4>Grade 3</h4>
+    <div>Odd and Even Numbers</div>
+    <div>Comparing to 10000</div>
+    <div>Multiplication</div>
+    <div>Hard Addition</div>
+    <div>Hard Patterns</div>
+    
+    <h4>Grade 4</h4>
+    <div>Numbers to 100000</div>
+    <div>20x20 Multiplication</div>
+    <div>4 Division</div>
+    <div>Simplify Fractions</div>
+    <div>Fractions To Decimals</div>
+    
+    <h4>Grade 5</h4>
+    <div>Expert Multiplication</div>
+    <div>Adding Fractions</div>
+    <div>Comparing Decimals</div>
+    <div>Converting Time</div>
+    <div>Multiplication (calculator allowed)</div>
+    
+    <h4>Grade 6</h4>
+    <div>Arithmetic Test</div>
+    <div>Comparing Fractions</div>
+    <div>Add And Subtract Decimals</div>
+    <div>Multiply Decimals</div>
+    <div>Fractions to Percentages</div>
+</div>
+<div id="gameList">
+    <div class="yrLevelTitle" id="Reception">Reception</div>
+    <div id="Counting">
+        <div class="gameTitle">Counting</div>
+        <div class="gameDesc">Help dumb receptions become child prodigies in this fun counting game.
+        This game will make counting fun, with engaging graphics and fun sounds. &#128578;</div>
+        <span class="button" onclick="window.location.href='/maths/games/0counting'">Play</span>
+    </div>
+    <div id="Number Names">
+        <div class="gameTitle">Number Names</div>
+        <div class="gameDesc">Receptions can learn how to make connections between numerals and words in this intuitive game. 
+        Make Learning fun with vibrant colours and animations.</div>
+        <span class="button" onclick="window.location.href='/maths/games/0names'">Play</span>
+    </div>
+    <div  id="Addition up to 20">
+        <div class="gameTitle">Addition up to 20</div>
+        <div class="gameDesc">Receptions can learn to add numbers between 0 and 20 in this fun game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/0addition'">Play</span>
+    </div>
+    <div id="Comparing Numbers">
+        <div class="gameTitle">Comparing Numbers</div>
+        <div class="gameDesc">Receptions can learn how to find the value of numbers by finding the greater number.</div>
+        <span class="button" onclick="window.location.href='/maths/games/0numbvalue'">Play</span>
+    </div>
+    <div id="Naming Shapes">
+        <div class="gameTitle">Naming Shapes</div>
+        <div class="gameDesc">Receptions can learn basic geometry in this game. They answer the number of sides given shapes have.</div>
+        <span class="button" onclick="window.location.href='/maths/games/0geo'">Play</span>
+    </div>
+    <div class="yrLevelTitle" id="Grade 1">Grade 1</div>
+    <div id="Counting to 100">
+        <div class="gameTitle">Counting to 100</div>
+        <div class="gameDesc">Grade 1s can further their counting knowledge in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/1counting'">Play</span>
+    </div>
+    <div id="Skip Counting (2, 5, 10)">
+        <div class="gameTitle">Skip Counting (2, 5, 10)</div>
+        <div class="gameDesc">Grade 1s can further their counting knowledge in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/1skipcount'">Play</span>
+    </div>
+    <div id="Comparing Numbers">
+        <div class="gameTitle">Comparing Numbers</div>
+        <div class="gameDesc">Grade 1s can further their number knowledge in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/1comparing'">Play</span>
+    </div>
+    <div id="Basic Addition and Subtraction">
+        <div class="gameTitle">Basic Addition and Subtraction</div>
+        <div class="gameDesc">Grade 1s can further their addition and subtraction knowledge in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/1addsub'">Play</span>
+    </div>
+    <div id="Basic Addition and Subtraction">
+        <div class="gameTitle">Basic Addition and Subtraction</div>
+        <div class="gameDesc">Grade 1s can further their addition and subtraction knowledge in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/1addsub'">Play</span>
+    </div>
+    <div id="Tell The Time">
+        <div class="gameTitle">Tell The Time</div>
+        <div class="gameDesc">Grade 1s can learn how to tell the time in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/1time'">Play</span>
+    </div>
+    <div class="yrLevelTitle" id="Grade 2">Grade 2</div>
+    <div id="Skip Counting (2, 3, 5, 10)">
+        <div class="gameTitle">Skip Counting (2, 3, 5, 10)</div>
+        <div class="gameDesc">Grade 2s can learn how to tell the time in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/2skipcount'">Play</span>
+    </div>
+    <div id="Comparing Numbers to 1000">
+        <div class="gameTitle">Comparing Numbers to 1000</div>
+        <div class="gameDesc">Grade 2s can learn how to compare numbers in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/2comparing'">Play</span>
+    </div>
+    <div id="Intro To Multiplication">
+        <div class="gameTitle">Intro To Multiplication</div>
+        <div class="gameDesc">Grade 2s can learn how to multiply in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/2multiply'">Play</span>
+    </div>
+    <div id="Intro To Division">
+        <div class="gameTitle">Intro To Division</div>
+        <div class="gameDesc">Grade 2s can learn how to divide in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/2divide'">Play</span>
+    </div>
+    <div id="Basic Patterns">
+        <div class="gameTitle">Basic Patterns</div>
+        <div class="gameDesc">Grade 2s can learn how to recognise patterns in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/2patterns'">Play</span>
+    </div>
+    <div class="yrLevelTitle" id="Grade 3">Grade 3</div>
+    <div id="Odd and Even Numbers">
+        <div class="gameTitle">Odd and Even Numbers</div>
+        <div class="gameDesc">Grade 3s can learn how to recognise odd and even numbers in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/3oddeven'">Play</span>
+    </div>
+    <div id="Comparing to 10000">
+        <div class="gameTitle">Comparing to 10000</div>
+        <div class="gameDesc">Grade 3s can learn how to compare numbers up to 10,000 in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/3comparing'">Play</span>
+    </div>
+    <div id="Multiplication">
+        <div class="gameTitle">Multiplication</div>
+        <div class="gameDesc">Grade 3s can learn how to multiply in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/3multiply'">Play</span>
+    </div>
+    <div id="Hard Addition">
+        <div class="gameTitle">Hard Addition</div>
+        <div class="gameDesc">Grade 3s can learn how to add ans subtract in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/3addsub'">Play</span>
+    </div>
+    <div id="Hard Patterns">
+        <div class="gameTitle">Hard Patterns</div>
+        <div class="gameDesc">Grade 3s can learn patterns in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/3patterns'">Play</span>
+    </div>
+    <div class="yrLevelTitle" id="Grade 4">Grade 4</div>
+    <div id="Numbers to 100000">
+        <div class="gameTitle">Numbers to 100000</div>
+        <div class="gameDesc">Grade 4s can learn numbers in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/4comparing'">Play</span>
+    </div>
+    <div id="20x20 Multiplication">
+        <div class="gameTitle">20x20 Multiplication</div>
+        <div class="gameDesc">Grade 4s can learn multiplication in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/4multiply'">Play</span>
+    </div>
+    <div id="4 Division">
+        <div class="gameTitle">4 Division</div>
+        <div class="gameDesc">Grade 4s can learn division in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/4divide'">Play</span>
+    </div>
+    <div id="Simplify Fractions">
+        <div class="gameTitle">Simplify Fractions</div>
+        <div class="gameDesc">Grade 4s can learn to simplify fractions in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/4simplify'">Play</span>
+    </div>
+    <div id="Fractions To Decimals">
+        <div class="gameTitle">Fractions To Decimals</div>
+        <div class="gameDesc">Grade 4s can learn to convert fractions to decimals in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/4decimal'">Play</span>
+    </div>
+    <div class="yrLevelTitle" id="Grade 5">Grade 5</div>
+    <div id="Expert Multiplication">
+        <div class="gameTitle">Expert Multiplication</div>
+        <div class="gameDesc">Grade 5s can learn to become multiplication experts in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/5multiply'">Play</span>
+    </div>
+    <div id="Adding Fractions">
+        <div class="gameTitle">Adding Fractions</div>
+        <div class="gameDesc">Grade 5s can learn to add fractions in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/5decaddsub'">Play</span>
+    </div>
+    <div id="Comparing Decimals">
+        <div class="gameTitle">Comparing Decimals</div>
+        <div class="gameDesc">Grade 5s can learn to compare decimals in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/5comparing'">Play</span>
+    </div>
+    <div id="Converting Time">
+        <div class="gameTitle">Converting Time</div>
+        <div class="gameDesc">Grade 5s can learn to convert from 12 to 24 hour time in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/5time'">Play</span>
+    </div>
+    <div id="Multiplication (calculator allowed)">
+        <div class="gameTitle">Multiplication (calculator allowed)</div>
+        <div class="gameDesc">Grade 5s can learn to use a calculator in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/5calc'">Play</span>
+    </div>
+    <div class="yrLevelTitle" id="Grade 6">Grade 6</div>
+    <div id="Arithmetic Test">
+        <div class="gameTitle">Arithmetic Test</div>
+        <div class="gameDesc">Grade 6s can learn to become arithmetic experts in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/6arr'">Play</span>
+    </div>
+    <div id="Comparing Fractions">
+        <div class="gameTitle">Comparing Fractions</div>
+        <div class="gameDesc">Grade 6s can learn to compare fractions in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/6comparing'">Play</span>
+    </div>
+    <div id="Add And Subtract Decimals">
+        <div class="gameTitle">Add And Subtract Decimals</div>
+        <div class="gameDesc">Grade 6s can learn to add and subtract decimals in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/6addsub'">Play</span>
+    </div>
+    <div id="Multiply Decimals">
+        <div class="gameTitle">Multiply Decimals</div>
+        <div class="gameDesc">Grade 6s can learn to multiply decimals decimals in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/6multdecimals'">Play</span>
+    </div>
+    <div id="Fractions to Percentages">
+        <div class="gameTitle">Fractions to Percentages</div>
+        <div class="gameDesc">Grade 6s can learn to convert fractions to percentages in this game.</div>
+        <span class="button" onclick="window.location.href='/maths/games/6percentage'">Play</span>
+    </div>
+</div>
+<script>
+var contentsElms = document.getElementById("contents").children;
+var i;
+for (i=0; i<contentsElms.length; i++) {
+    contentsElms[i].addEventListener("click", function(e) {
+        window.location.href = "#" + this.innerText;
+    });
+}
+function getCookie(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length == 2) return parts.pop().split(";").shift();
+}
+if (!getCookie("name") || !getCookie("pass")) {
+    window.location.href = "/register?redirectTo=maths";
+}
+</script>
+</body>
+</html>

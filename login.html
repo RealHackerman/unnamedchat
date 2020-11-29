@@ -2,6 +2,15 @@
 <html>
 
 <head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QSKP9BY28S"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-QSKP9BY28S');
+  </script>
 	<link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
 	<title>Login | Unnamed Chat</title>
 	<style>
@@ -103,6 +112,13 @@
       margin-left: 5px;
       margin-top: 5px;
     }
+
+    #suspInfo {
+      padding: 15px;
+      text-align: center;
+      font-size: 15px;
+      display: none;
+    }
 	</style>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="Description" content="Unnamed Chat, the superior chat website" />
@@ -119,6 +135,7 @@
     <input id="name"/>
     <span class="label" id="pLabel">PASSWORD</span>
     <input type="password" id="pass" />
+    <div id="suspInfo" class="noAcc"></div>
     <div class="noAcc">Don't have an account? <a href="/register">Register</a></div>
     <div class="noAcc">Forgotten your password? <a href="/passwordreset">Reset</a></div>
     <div class="wrap">
@@ -156,6 +173,11 @@
       document.getElementById("pLabel").style.color = "red";
       document.getElementById("pass").style.borderColor = "red";
     });
+    socket.on("timeoutError", function() {
+      document.getElementById("pLabel").innerHTML = "PASSWORD - <i>Too many login attempts! Try again in a minute</i>"
+      document.getElementById("pLabel").style.color = "red";
+      document.getElementById("pass").style.borderColor = "red";
+    });
     socket.on('loginSuccess', function() {
       document.cookie = "name=" + document.getElementById("name").value + "; expires=" + new Date(new Date().getTime()+2592000000) + "; secure";
       document.cookie = "pass=" + document.getElementById("pass").value + "; expires=" + new Date(new Date().getTime()+2592000000) + "; secure";
@@ -164,6 +186,23 @@
       } else {
         window.location.href = "/app";
       }
+    });
+    socket.on("suspError", function(time) {
+      if (time === "Infinity") {
+        document.getElementById("suspInfo").innerHTML = "Your account has been terminated for violation of our <a href='/tos'>Terms of Service</a>. For more information, <a href='mailto:unnamedchat@gmail.com'>email us</a>.";
+      } else {
+        //format time
+        let formatTime = "";
+        if (new Date(time).getDate() !== new Date().getDate() || new Date(time).getMonth() !== new Date().getMonth() || new Date(time).getYear() !== new Date().getYear()) {
+          formatTime = new Intl.DateTimeFormat('en-AU', {year: 'numeric', month: 'numeric', day: 'numeric'}).format(time) + " at ";
+        }
+        formatTime += new Intl.DateTimeFormat('en-AU', {hour: 'numeric', minute: 'numeric', hour12: true}).format(time);
+        document.getElementById("suspInfo").innerHTML = "Your account has been suspended until " + formatTime + " for violation of our <a href='/tos'>Terms of Service</a>. For more information, <a href='mailto:unnamedchat@gmail.com'>email us</a>.";
+      }
+      document.getElementById("suspInfo").style.display = "block";
+      document.getElementById("pLabel").innerHTML = "PASSWORD"
+      document.getElementById("pLabel").style.color = "";
+      document.getElementById("pass").style.borderColor = "";
     });
   } else {
     window.location.href = "./app";

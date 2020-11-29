@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <title>Your Data | Unnamed Chat</title>
+    <style>
+      body {
+        background-color: #232323;
+        margin: 0px
+      }
+      section {
+        font-family: 'Roboto', sans-serif;
+        font-size: 20px;
+        padding: 30px 60px 60px 60px;
+        background: linear-gradient(135deg, #3c3c3c, #fda50f);
+        color: white;
+        line-height: 30px;
+        text-align: center;
+        background-attachment: fixed;
+        word-wrap: break-word;
+      }
+      .main {
+        background-color: #3c3c3c;
+        border-radius: 5px;
+        padding: 30px;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      img {
+        margin: 5px 0px;
+      }
+
+      span {
+        margin: 2px 0px;
+        display: inline-block;
+      }
+
+      .button {
+        color: white;
+        background-color: #fda50f;
+        cursor: pointer;
+        border-radius: 5px;
+        padding: 7px;
+        margin: 15px 0px;
+        display: inline-block;
+      }
+
+      .disclaimer {
+        font-size: 12px;
+        color: grey !important;
+        line-height: normal;
+        text-align: left;
+      }
+
+      a {
+        color: grey !important;
+      }
+
+      .hi {
+        font-size: 30px;
+        font-weight: bold;
+      }
+
+      #havingTrouble {
+        font-size: 14px;
+        text-align: center; 
+        margin-bottom: 30px; 
+        color: darkgrey;
+        border-radius: 5px;
+      }
+    </style>
+    <link rel="icon" href="https://unnamedchat.repl.co/assets/logo.png" type="image/x-icon"/>
+  </head>
+  <body>
+    <section>
+    <div id="havingTrouble">Having trouble viewing this email? <a style="color: darkgrey !important;" href='https://unnamedchat.repl.co/assets/emailTemplates/data?name=$NAME&id=$EMAIL&data=$DATA'>Open in browser</a>.</div>
+	  <div class="main">
+      <div>
+        <a href='https://unnamedchat.repl.co/'>
+          <img src='https://unnamedchat.repl.co/assets/logo.png' alt='unnamed chat logo' width='100' height='100' />
+        </a>
+      </div>
+      <span class='hi' id="name">Hi $NAME,</span>
+      <div>
+        Here is the data that has been collected by Unnamed Chat: 
+      </div>
+      <div id="data">
+        $DATA
+      </div>
+      <span class="disclaimer">
+        This email was sent to you because you requested a copy of your data on
+        <a href='https://unnamedchat.repl.co/'>
+        unnamedchat.repl.co</a>. If this was not you, <a href='https://unnamedchat.repl.co/passwordreset'>reset your password</a> immediately.<br>
+        <span id="emailID">Email ID $EMAIL</span>
+      </span>
+    </main>
+    </section>
+    <script>
+      document.getElementById("havingTrouble").style.display = "none";
+      document.getElementsByTagName("section")[0].style.padding = "60px";
+      var urlParams = {};
+      var match;
+      var pl = /\+/g;
+      var search = /([^&=]+)=?([^&]*)/g;
+      var decode = function (s) {return decodeURIComponent(s.replace(pl, " "));}
+      var query  = window.location.search.substring(1);
+      while (match = search.exec(query))
+      urlParams[decode(match[1])] = decode(match[2]);
+      if (urlParams.name === undefined) {
+        document.getElementById("name").innerText = "Hi"
+      } else {
+        document.getElementById("name").innerText = "Hi, " + urlParams.name;
+      }
+      if (urlParams.id === undefined) {
+        document.getElementById("emailID").innerText = "";
+      } else {
+        document.getElementById("emailID").innerText = "Email ID " + urlParams.id;
+      }
+      if (urlParams.data === undefined) {
+        document.getElementById("data").innerText = "No Data";
+      } else {
+        document.getElementById("data").innerText = urlParams.data;
+      }
+    </script>
+  </body>
+</html>
